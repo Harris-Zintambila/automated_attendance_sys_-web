@@ -2,8 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
   LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
-  BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer
-} from "recharts";
+  BarChart, Bar, PieChart, Pie, Cell, ResponsiveContainer} from "recharts";
+import { CgProfile } from "react-icons/cg";
+import { SiSimpleanalytics } from "react-icons/si";
+import { RxDashboard } from "react-icons/rx";
+import { LiaPenSolid } from "react-icons/lia";
 
 const App = () => {
   return (
@@ -24,9 +27,10 @@ const Header = () => (
       <div style={styles.menuIcon}>☰</div>
     </div>
     <div style={styles.headerRight}>
-      <div style={styles.notification}>🔔</div>
       <div style={styles.userProfile}>
-        <div style={styles.avatar}>👤</div>
+        <div style={styles.userAvatar}>
+          <CgProfile />
+        </div>
         <div style={styles.userText}>
           <div style={styles.userName}>SIR RUBRIC MOYO</div>
           <div style={styles.userRole}>LECTURE</div>
@@ -39,15 +43,17 @@ const Header = () => (
 const Sidebar = () => (
   <div style={styles.sidebar}>
     <div style={styles.userSection}>
-      <div style={styles.userAvatarLarge}>👤</div>
+      <div style={styles.userAvatarLarge}>
+        <CgProfile />
+      </div>
       <div style={styles.userLabel}>MAIN NAVIGATION MENU</div>
     </div>
 
     <nav style={styles.nav}>
-      <NavItem icon="📊" label="Dashboard" active={true} />
-      <NavItem icon="👤" label="Profile" />
-      <NavItem icon="✏️" label="Assign Invigilator" />
-      <NavItem icon="📈" label="Analytics" />
+      <NavItem icon={<RxDashboard />} label="Dashboard" active={true} />
+      <NavItem icon={<CgProfile />} label="Profile" />
+      <NavItem icon={<LiaPenSolid />} label="Assign Invigilator" />
+      <NavItem icon={<SiSimpleanalytics />} label="Analytics" />
     </nav>
   </div>
 );
@@ -65,7 +71,7 @@ const NavItem = ({ icon, label, active = false }) => (
 const Dashboard = () => {
   const [stats, setStats] = useState({
     com411: "Com 411",
-    students: "Students 57",
+    students: "Students",
     year: "Year 4",
     department: "Computing Department"
   });
@@ -84,8 +90,8 @@ const Dashboard = () => {
     { week: "12", present: 51, absent: 6 }
   ]);
   const [genderData, setGenderData] = useState([
-    { name: "Boys", value: 59, color: "#0D9488" },
-    { name: "Girls", value: 41, color: "#EF4444" }
+    { name: "Males", value: 59, color: "#0D9488" },
+    { name: "Females", value: 41, color: "#EF4444" }
   ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -110,7 +116,7 @@ const Dashboard = () => {
       {/* Stats Cards */}
       <div style={styles.statsCards}>
         <StatCard value="Com 411" />
-        <StatCard value="Students 57" />
+        <StatCard value="Students" />
         <StatCard value="Year 4" />
         <StatCard value="Computing Department" />
       </div>
@@ -165,11 +171,11 @@ const Dashboard = () => {
           <div style={styles.legend}>
             <div style={styles.legendItem}>
               <div style={{ ...styles.legendColor, backgroundColor: "#14B8A6" }}></div>
-              <span>Boys</span>
+              <span>Males</span>
             </div>
             <div style={styles.legendItem}>
               <div style={{ ...styles.legendColor, backgroundColor: "#EF4444" }}></div>
-              <span>Girls</span>
+              <span>Females</span>
             </div>
           </div>
         </div>
