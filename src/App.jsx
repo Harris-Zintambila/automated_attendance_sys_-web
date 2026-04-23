@@ -9,38 +9,22 @@ import { RxDashboard } from "react-icons/rx";
 import { LiaPenSolid } from "react-icons/lia";
 
 const App = () => {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
   return (
     <div style={styles.app}>
-      <Header />
       <div style={styles.mainContainer}>
-        <Sidebar />
-        <Dashboard />
+        <Sidebar setCurrentPage={setCurrentPage} currentPage={currentPage} />
+        {currentPage === 'dashboard' && <Dashboard />}
+        {currentPage === 'profile' && <div>Profile Page</div>}
+        {currentPage === 'assigninvigilator' && <div>Assign Invigilator Page</div>}
+        {currentPage === 'analytics' && <div>Analytics Page</div>}
       </div>
     </div>
   );
 };
 
-const Header = () => (
-  <div style={styles.header}>
-    <div style={styles.headerLeft}>
-      <div style={styles.logo}>AAS</div>
-      <div style={styles.menuIcon}>☰</div>
-    </div>
-    <div style={styles.headerRight}>
-      <div style={styles.userProfile}>
-        <div style={styles.userAvatar}>
-          <CgProfile />
-        </div>
-        <div style={styles.userText}>
-          <div style={styles.userName}>SIR RUBRIC MOYO</div>
-          <div style={styles.userRole}>LECTURE</div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const Sidebar = () => (
+const Sidebar = ({ setCurrentPage, currentPage }) => (
   <div style={styles.sidebar}>
     <div style={styles.userSection}>
       <div style={styles.userAvatarLarge}>
@@ -50,58 +34,68 @@ const Sidebar = () => (
     </div>
 
     <nav style={styles.nav}>
-      <NavItem icon={<RxDashboard />} label="Dashboard" active={true} />
-      <NavItem icon={<CgProfile />} label="Profile" />
-      <NavItem icon={<LiaPenSolid />} label="Assign Invigilator" />
-      <NavItem icon={<SiSimpleanalytics />} label="Analytics" />
+      <NavItem icon={<RxDashboard />} label="Dashboard" active={currentPage === 'dashboard'} onClick={() => setCurrentPage('dashboard')} />
+      <NavItem icon={<CgProfile />} label="Profile" active={currentPage === 'profile'} onClick={() => setCurrentPage('profile')} />
+      <NavItem icon={<LiaPenSolid />} label="Assign Invigilator" active={currentPage === 'assigninvigilator'} onClick={() => setCurrentPage('assigninvigilator')} />
+      <NavItem icon={<SiSimpleanalytics />} label="Analytics" active={currentPage === 'analytics'} onClick={() => setCurrentPage('analytics')} />
     </nav>
   </div>
 );
 
-const NavItem = ({ icon, label, active = false }) => (
+const NavItem = ({ icon, label, active = false, onClick }) => (
   <div style={{
     ...styles.navItem,
     ...(active ? styles.navItemActive : {})
-  }}>
+  }} onClick={onClick}>
     <span style={styles.navIcon}>{icon}</span>
     <span>{label}</span>
   </div>
 );
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    com411: "Com 411",
-    students: "Students",
-    year: "Year 4",
-    department: "Computing Department"
-  });
-  const [trendData, setTrendData] = useState([
-    { week: "1", present: 35, absent: 22 },
-    { week: "2", present: 40, absent: 17 },
-    { week: "3", present: 38, absent: 19 },
-    { week: "4", present: 45, absent: 12 },
-    { week: "5", present: 42, absent: 15 },
-    { week: "6", present: 48, absent: 9 },
-    { week: "7", present: 50, absent: 7 },
-    { week: "8", present: 44, absent: 13 },
-    { week: "9", present: 46, absent: 11 },
-    { week: "10", present: 49, absent: 8 },
-    { week: "11", present: 48, absent: 9 },
-    { week: "12", present: 51, absent: 6 }
-  ]);
-  const [genderData, setGenderData] = useState([
-    { name: "Males", value: 59, color: "#0D9488" },
-    { name: "Females", value: 41, color: "#EF4444" }
-  ]);
+  const [selectedCourse, setSelectedCourse] = useState('com411');
+  const [stats, setStats] = useState([]);
+  const [trendData, setTrendData] = useState([]);
+  const [genderData, setGenderData] = useState([]);
+
+  const dataLevels = {
+    com411: {
+      stats: ["Program: Computer Science", "Department: Computing", "Year: 4", "Program of Study: BSc Computing"],
+      trend: [
+        { week: "1", present: 35, absent: 22 },
+        { week: "2", present: 40, absent: 17 },
+        { week: "3", present: 38, absent: 19 },
+        { week: "4", present: 45, absent: 12 },
+        { week: "5", present: 42, absent: 15 },
+        { week: "6", present: 48, absent: 9 },
+        { week: "7", present: 50, absent: 7 },
+        { week: "8", present: 44, absent: 13 },
+        { week: "9", present: 46, absent: 11 },
+        { week: "10", present: 49, absent: 8 },
+        { week: "11", present: 48, absent: 9 },
+        { week: "12", present: 51, absent: 6 }
+      ],
+      gender: [
+        { name: "Males", value: 59, color: "#0D9488" },
+        { name: "Females", value: 41, color: "#EF4444" }
+      ]
+    },
+    // Add more courses/modules here
+  };
+
+  useEffect(() => {
+    const data = dataLevels[selectedCourse] || dataLevels.com411;
+    setStats(data.stats);
+    setTrendData(data.trend);
+    setGenderData(data.gender);
+  }, [selectedCourse]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/analytics");
-        setStats(res.data.stats || stats);
-        setTrendData(res.data.trend || trendData);
-        setGenderData(res.data.genderStats || genderData);
+        // For now, ignore backend, use mock
       } catch (err) {
         console.error(err);
       }
@@ -113,12 +107,19 @@ const Dashboard = () => {
     <div style={styles.dashboard}>
       <div style={styles.analyticsHeader}>Analytics</div>
 
+      {/* Course Selector */}
+      <div style={{ marginBottom: '15px' }}>
+        <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)} style={styles.select}>
+          <option value="com411">COM 411</option>
+          {/* Add more options */}
+        </select>
+      </div>
+
       {/* Stats Cards */}
       <div style={styles.statsCards}>
-        <StatCard value="Com 411" />
-        <StatCard value="Students" />
-        <StatCard value="Year 4" />
-        <StatCard value="Computing Department" />
+        {stats.map((stat, index) => (
+          <StatCard key={index} value={stat} />
+        ))}
       </div>
 
       {/* Charts Section */}
@@ -198,64 +199,6 @@ const styles = {
     width: "100vw",
     backgroundColor: "#f3f4f6",
     fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif"
-  },
-  header: {
-    backgroundColor: "#0D7377",
-    color: "white",
-    padding: "15px 30px",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
-  },
-  headerLeft: {
-    display: "flex",
-    alignItems: "center",
-    gap: "20px"
-  },
-  logo: {
-    fontSize: "24px",
-    fontWeight: "bold",
-    letterSpacing: "2px"
-  },
-  menuIcon: {
-    fontSize: "20px",
-    cursor: "pointer"
-  },
-  headerRight: {
-    display: "flex",
-    alignItems: "center",
-    gap: "20px"
-  },
-  notification: {
-    fontSize: "20px",
-    cursor: "pointer"
-  },
-  userProfile: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px"
-  },
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "rgba(255,255,255,0.2)",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "20px"
-  },
-  userText: {
-    fontSize: "12px"
-  },
-  userName: {
-    fontWeight: "bold",
-    fontSize: "13px"
-  },
-  userRole: {
-    fontSize: "11px",
-    opacity: 0.9
   },
   mainContainer: {
     display: "flex",
@@ -404,6 +347,13 @@ const styles = {
     width: "10px",
     height: "10px",
     borderRadius: "2px"
+  },
+  select: {
+    padding: "8px 12px",
+    borderRadius: "4px",
+    border: "1px solid #ccc",
+    fontSize: "14px",
+    backgroundColor: "white"
   }
 };
 
