@@ -79,7 +79,7 @@ function Profile() {
         </div>
 
         <nav className="space-y-2">
-          <Link to="/">
+           <Link to="/">
          <button className="w-full text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
           Dashboard
        </button>
@@ -94,11 +94,11 @@ function Profile() {
           Assign Invigilator
        </button>
          </Link>
-         <Link to="/profile">
-            <button className="w-full py-2 text-white bg-teal-700 rounded-lg">
-            Profile
-          </button>
-          </Link>
+           <Link to="/profile">
+         <button className="w-full bg-teal-700 py-2 text-white rounded-lg">
+          Profile
+       </button>
+         </Link>
         </nav>
       </aside>
 
@@ -116,16 +116,6 @@ function Profile() {
             <h2 className="text-lg font-semibold text-teal-700 mb-2">
               Analytics for:
             </h2>
-           {/* <div className="flex flex-wrap gap-4">
-              {activeSelections.map(([key, value], i) => (
-                <div
-                  key={i}
-                  className="flex-1 min-w-[180px] bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700"
-                >
-                  {getLabel(key)}: {value}
-                </div>
-              ))}
-            </div> */}
           </div>
         )}
 

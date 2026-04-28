@@ -101,18 +101,18 @@ function Dashboard() {
             className="flex-1 min-w-[180px] border rounded px-3 py-2"
           >
             <option value="">Select a Course</option>
-            <option>COM 411</option>
-            <option>COM 412</option>
-            <option>COM 413</option>
-            <option>COM 414</option>
-            <option>COM 415</option>
-            <option>COM 421</option>
-            <option>COM 422</option>
-            <option>COM 423</option>
-            <option>COM 424</option>
-            <option>COM 425</option>
-            <option>INF 423</option>
-            <option>SCE 411</option>
+            <option>COM411</option>
+            <option>COM412</option>
+            <option>COM413</option>
+            <option>COM414</option>
+            <option>COM415</option>
+            <option>COM421</option>
+            <option>COM422</option>
+            <option>COM423</option>
+            <option>COM424</option>
+            <option>COM425</option>
+            <option>INF423</option>
+            <option>SCE411</option>
           </select>
 
           <select 
