@@ -1,3 +1,4 @@
+import Profile from "./pages/profile";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -15,7 +16,7 @@ const App = () => {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar setCurrentPage={setCurrentPage} currentPage={currentPage} />
         {currentPage === 'dashboard' && <Dashboard />}
-        {currentPage === 'profile' && <div>Profile Page</div>}
+        {currentPage === 'profile' && <Profile />}
         {currentPage === 'assigninvigilator' && <div>Assign Invigilator Page</div>}
       </div>
     </div>
