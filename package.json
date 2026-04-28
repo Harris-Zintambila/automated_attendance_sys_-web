@@ -1,18 +1,13 @@
 {
-  "name": "automated_attendance_sys_web",
+  "name": "automated-attendance-system-web",
+  "version": "0.1.0",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
   "dependencies": {
     "axios": "^1.15.2",
-    "react": "^19.2.4",
-    "react-dom": "^19.2.4",
+    "hugeicons-react": "^0.4.0",
+    "lucide-react": "^1.11.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
     "react-icons": "^5.6.0",
     "recharts": "^3.8.1"
   },
