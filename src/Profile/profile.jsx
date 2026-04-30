@@ -38,7 +38,7 @@ const Profile = () => {
   return (
     <div className="flex flex-col gap-6">
 
-      <h2 className="text-xl font-bold text-teal-700">User Management</h2>
+      <h2 className="text-xl font-bold text-teal-700">Profile Management</h2>
 
       {/* Form */}
       <div className="bg-white p-4 rounded shadow grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -79,7 +79,7 @@ const Profile = () => {
           onClick={handleAdd}
           className="col-span-1 md:col-span-4 bg-teal-600 text-white py-2 rounded hover:bg-teal-700"
         >
-          Add User
+          Add Profile
         </button>
       </div>
 
