@@ -113,8 +113,7 @@ function AssignInvigilator() {
                     <option>COM424</option>
                     <option>COM425</option>
                     <option>COM432</option>
-                    <option>INF423</option>
-                    <option>SCE411</option>
+                  
                   </select>
                 </td>
                 <td className="p-2 border border-gray-300">
