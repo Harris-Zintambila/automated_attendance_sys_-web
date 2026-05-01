@@ -55,20 +55,20 @@ function AssignInvigilator() {
 
         <nav className="space-y-2">
           <Link to="/">
-         <button className="w-full text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
+         <button className="w-full text-left text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
           Dashboard
        </button>
          </Link>
          <Link to="/analytics">
-            <button className="w-full text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
+            <button className="w-full text-left text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
             Analytics
           </button>
           </Link>
-          <button className="w-full text-white bg-teal-700 py-2 rounded-lg">
+          <button className="w-full text-left text-white bg-teal-700 py-2 rounded-lg">
             Assign Invigilator
           </button>
            <Link to="/profile">
-         <button className="w-full text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
+         <button className="w-full text-left text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
           Profile
        </button>
          </Link>

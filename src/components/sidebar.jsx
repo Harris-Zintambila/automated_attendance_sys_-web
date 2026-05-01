@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 function Sidebar({ active }) {
   const linkClasses = (page) =>
-    `w-full py-2 rounded-lg ${
+    `w-full text-left py-2 rounded-lg ${
       active === page ? "bg-teal-700 text-white" : "text-gray-600 hover:bg-teal-100"
     }`;
 
