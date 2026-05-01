@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Sidebar from "../components/sidebar";
 
 const departments = [
   "Biological Sciences",
@@ -79,12 +80,16 @@ const Profile = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex h-screen bg-gray-100">
+      <Sidebar active="profile" />
 
-      <h2 className="text-xl font-bold text-teal-700">Profile Management</h2>
+      <main className="flex-1 p-6 overflow-y-auto">
+        <div className="flex flex-col gap-6">
 
-      {/* FORM */}
-      <div className="bg-white p-4 rounded shadow grid grid-cols-1 md:grid-cols-4 gap-3">
+          <h2 className="text-xl font-bold text-teal-700">Profile Management</h2>
+
+          {/* FORM */}
+          <div className="bg-white p-4 rounded shadow grid grid-cols-1 md:grid-cols-4 gap-3">
 
         <input
           type="text"
@@ -170,6 +175,8 @@ const Profile = () => {
         </table>
       </div>
 
+        </div>
+      </main>
     </div>
   );
 };
