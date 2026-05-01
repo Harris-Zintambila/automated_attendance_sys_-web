@@ -1,8 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const departments = [
+  "Biological Sciences",
+  "Biomedical and Health Sciences",
+  "Chemistry and Chemical Engineering",
+  "Computing",
+  "Geography, Earth Sciences and Environment",
+  "Human Ecology and Agricultural Sciences",
+  "Mathematical Sciences",
+  "Physics and Electronics"
+];
+
 const Profile = () => {
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -12,8 +25,12 @@ const Profile = () => {
 
   // Fetch users
   const fetchUsers = async () => {
-    const res = await axios.get("http://localhost:5000/api/users");
-    setUsers(res.data);
+    try {
+      const res = await axios.get("http://localhost:5000/api/users");
+      setUsers(res.data);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   useEffect(() => {
@@ -22,17 +39,43 @@ const Profile = () => {
 
   // Add user
   const handleAdd = async () => {
-    if (!form.name || !form.email) return;
+    if (!form.name || !form.email || !form.department) {
+      alert("Please fill all fields");
+      return;
+    }
 
-    await axios.post("http://localhost:5000/api/users", form);
-    setForm({ name: "", email: "", role: "lecturer", department: "" });
-    fetchUsers();
+    try {
+      setLoading(true);
+
+      const res = await axios.post("http://localhost:5000/api/users", form);
+
+      // 🔥 Instant update (no reload)
+      setUsers((prev) => [...prev, res.data]);
+
+      // Reset form
+      setForm({
+        name: "",
+        email: "",
+        role: "lecturer",
+        department: ""
+      });
+
+    } catch (err) {
+      console.error(err);
+      alert("Failed to add user");
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Delete user
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:5000/api/users/${id}`);
-    fetchUsers();
+    try {
+      await axios.delete(`http://localhost:5000/api/users/${id}`);
+      setUsers((prev) => prev.filter((user) => user.id !== id));
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -40,8 +83,9 @@ const Profile = () => {
 
       <h2 className="text-xl font-bold text-teal-700">Profile Management</h2>
 
-      {/* Form */}
+      {/* FORM */}
       <div className="bg-white p-4 rounded shadow grid grid-cols-1 md:grid-cols-4 gap-3">
+
         <input
           type="text"
           placeholder="Full Name"
@@ -58,6 +102,7 @@ const Profile = () => {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
 
+        {/* Role Dropdown */}
         <select
           className="border p-2 rounded"
           value={form.role}
@@ -67,23 +112,31 @@ const Profile = () => {
           <option value="invigilator">Invigilator</option>
         </select>
 
-        <input
-          type="text"
-          placeholder="Department"
+        {/* Department Dropdown */}
+        <select
           className="border p-2 rounded"
           value={form.department}
           onChange={(e) => setForm({ ...form, department: e.target.value })}
-        />
+        >
+          <option value="">Select Department</option>
+          {departments.map((dept, index) => (
+            <option key={index} value={dept}>
+              {dept}
+            </option>
+          ))}
+        </select>
 
+        {/* Button */}
         <button
           onClick={handleAdd}
-          className="col-span-1 md:col-span-4 bg-teal-600 text-white py-2 rounded hover:bg-teal-700"
+          disabled={loading}
+          className="col-span-1 md:col-span-4 bg-teal-600 text-white py-2 rounded hover:bg-teal-700 disabled:opacity-50"
         >
-          Add Profile
+          {loading ? "Adding..." : "Add Profile"}
         </button>
       </div>
 
-      {/* Table */}
+      {/* TABLE */}
       <div className="bg-white rounded shadow overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-teal-500 text-white">
