@@ -3,6 +3,7 @@ import { useState } from "react";
 
 function Profile() {
   const [users, setUsers] = useState([]);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -64,7 +65,32 @@ function Profile() {
 
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
-        <div className="bg-teal-500 text-white px-4 py-3 gap-4 rounded-lg mb-4">Profile</div>
+        <div className="bg-teal-500 text-white px-4 py-3 rounded-lg mb-4 flex justify-between items-center relative">
+          <span>Profile</span>
+          <button
+            type="button"
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="rounded-full p-2 hover:bg-teal-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="h-6 w-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+          </button>
+          {showProfileMenu && (
+            <div className="absolute right-4 top-full mt-2 w-40 rounded-xl bg-white text-left shadow-lg ring-1 ring-black ring-opacity-5">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  // logout action here
+                }}
+                className="w-full px-3 py-3 text-sm text-slate-700 hover:bg-slate-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
           <h2 className="text-xl font-semibold text-teal-700 mb-4">Add New Profile</h2>
