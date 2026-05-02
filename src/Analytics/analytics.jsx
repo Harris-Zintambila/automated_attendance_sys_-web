@@ -125,7 +125,7 @@ function Analytics() {
                   setShowProfileMenu(false);
                   navigate("/");
                 }}
-                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-teal-50 transition-colors"
+                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-teal-50 transition-colors rounded-lg"
               >
                 Logout
               </button>
