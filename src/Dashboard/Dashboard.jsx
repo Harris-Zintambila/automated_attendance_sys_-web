@@ -101,7 +101,7 @@ function Dashboard() {
             </svg>
           </button>
           {showProfileMenu && (
-            <div className="absolute right-4 top-full mt-2 w-20 rounded-xl bg-white text-left shadow-lg ring-1 ring-black ring-opacity-5">
+            <div className="absolute right-4 top-full mt-2 w-20 h-11 rounded-xl bg-teal-100 text-left shadow-lg ring-1 ring-black ring-opacity-5">
               <button
                 type="button"
                 onClick={() => {
