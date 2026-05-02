@@ -106,6 +106,7 @@ function Profile() {
                 <option value="Mathematics">Mathematics</option>
                 <option value="Physics">Physics</option>
                 <option value="Biology">Biology</option>
+                <option value="Engineering">Engineering</option>
                 <option value="Chemistry">Chemistry</option>
               </select>
             </div>
