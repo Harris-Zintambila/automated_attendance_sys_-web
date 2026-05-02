@@ -79,7 +79,7 @@ function Analytics() {
         </div>
 
         <nav className="space-y-2">
-          <Link to="/">
+          <Link to="/dashboard">
          <button className="w-full text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
           Dashboard
        </button>
