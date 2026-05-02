@@ -37,6 +37,7 @@ function Analytics() {
     program: "",
     student: ""
   });
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -104,8 +105,31 @@ function Analytics() {
       <main className="flex-1 p-6 overflow-y-auto">
 
         {/* Header */}
-        <div className="bg-teal-500 text-white px-4 py-3 gap-4 rounded-lg mb-4">
-          Analytics
+        <div className="bg-teal-500 text-white px-4 py-3 rounded-lg mb-4 flex justify-between items-center relative">
+          <span>Analytics</span>
+          <button
+            type="button"
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="rounded-full p-2 hover:bg-teal-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="h-6 w-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            </svg>
+          </button>
+          {showProfileMenu && (
+            <div className="absolute right-4 top-full mt-2 w-40 rounded-xl bg-white text-left shadow-lg ring-1 ring-black ring-opacity-5">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  // logout action here
+                }}
+                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-100"
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Dynamic Heading - Show selected filters */}
