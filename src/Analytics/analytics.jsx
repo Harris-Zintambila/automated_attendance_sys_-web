@@ -2,8 +2,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
   PieChart, Pie, Cell
 } from "recharts";
-import { Link } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const attendanceData = [
@@ -38,6 +37,8 @@ function Analytics() {
     student: ""
   });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -122,9 +123,9 @@ function Analytics() {
                 type="button"
                 onClick={() => {
                   setShowProfileMenu(false);
-                  // logout action here
+                  navigate("/");
                 }}
-                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-100"
+                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-teal-50 transition-colors"
               >
                 Logout
               </button>

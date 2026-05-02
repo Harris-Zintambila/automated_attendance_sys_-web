@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function AssignInvigilator() {
@@ -11,6 +11,8 @@ function AssignInvigilator() {
     invigilator: ""
   });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const navigate = useNavigate();
 
   // State for assigned invigilators
   const [assignedInvigilators, setAssignedInvigilators] = useState([]);
@@ -96,9 +98,9 @@ function AssignInvigilator() {
                 type="button"
                 onClick={() => {
                   setShowProfileMenu(false);
-                  // logout action here
+                  navigate("/");
                 }}
-                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-slate-100"
+                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-teal-50 transition-colors"
               >
                 Logout
               </button>

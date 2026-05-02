@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function Profile() {
   const [users, setUsers] = useState([]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -82,9 +84,9 @@ function Profile() {
                 type="button"
                 onClick={() => {
                   setShowProfileMenu(false);
-                  // logout action here
+                  navigate("/");
                 }}
-                className="w-full px-3 py-3 text-sm text-slate-700 hover:bg-slate-100"
+                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-teal-50 transition-colors"
               >
                 Logout
               </button>
