@@ -108,7 +108,7 @@ function AssignInvigilator() {
           )}
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-          <table className="w-full min-w-full border border-gray-300">
+          <table className="w-full min-w-full border-rounded border-gray-300">
             <thead>
               <tr className="bg-teal-600 text-white text-sm">
                 <th className="p-3 text-left border border-gray-300 whitespace-nowrap">COURSE</th>
