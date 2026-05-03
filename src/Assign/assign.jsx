@@ -63,7 +63,7 @@ function AssignInvigilator() {
        </button>
          </Link>
          <Link to="/analytics">
-            <button className="w-full text-gray-600 py-1 hover:bg-teal-100 rounded-lg">
+            <button className="w-full text-gray-600 py-2 hover:bg-teal-100 rounded-lg">
             Analytics
           </button>
           </Link>
