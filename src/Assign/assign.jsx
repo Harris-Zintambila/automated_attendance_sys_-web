@@ -108,7 +108,7 @@ function AssignInvigilator() {
           )}
         </div>
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6">
-          <table className="w-full min-w-full border-rounded border-gray-300">
+          <table className="w-full min-w-full border border-gray-300">
             <thead>
               <tr className="bg-teal-600 text-white text-sm">
                 <th className="p-3 text-left border border-gray-300 whitespace-nowrap">COURSE</th>
@@ -200,7 +200,12 @@ function AssignInvigilator() {
           <div className="flex justify-end mt-4">
             <button 
               onClick={handleAssign}
-              className="bg-teal-600 hover:bg-teal-700 text-white font-semibold px-8 py-2 rounded-full shadow-md transition-colors"
+              disabled={!formData.course || !formData.date || !formData.time || !formData.room || !formData.invigilator}
+              className={`font-semibold px-8 py-2 rounded-full shadow-md transition-colors ${
+                !formData.course || !formData.date || !formData.time || !formData.room || !formData.invigilator
+                  ? 'bg-gray-400 text-gray-600 cursor-pointer'
+                  : 'bg-teal-600 hover:bg-teal-700 text-white'
+              }`}
             >
               Assign
             </button>
