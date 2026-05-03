@@ -98,7 +98,7 @@ function Profile() {
           <h2 className="text-xl font-semibold text-teal-700 mb-4">Add New Profile</h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nameeeeeeeeeee</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input
                 type="text"
                 name="name"
