@@ -124,7 +124,7 @@ function Dashboard() {
             name="course"
             value={selections.course} 
             onChange={handleChange}
-            className="flex-1 min-w-[180px] border cursor-pointer rounded px-3 py-2"
+            className="flex-1 min-w-[180px] border border-teal-500 cursor-pointer rounded px-3 py-2"
           >
             <option value="">Select a Course</option>
             <option>COM411</option>
@@ -145,7 +145,7 @@ function Dashboard() {
             name="year"
             value={selections.year} 
             onChange={handleChange}
-            className="flex-1 min-w-[180px] border cursor-pointer rounded px-3 py-2"
+            className="flex-1 min-w-[180px] border border-teal-500 cursor-pointer rounded px-3 py-2"
           >
             <option value="">Select Year</option>
             <option>Year 1</option>
@@ -159,7 +159,7 @@ function Dashboard() {
             name="department"
             value={selections.department} 
             onChange={handleChange}
-            className="flex-1 min-w-[180px] border cursor-pointer rounded px-3 py-2"
+            className="flex-1 min-w-[180px] border border-teal-500 cursor-pointer rounded px-3 py-2"
           >
             <option value="">Select Department</option>
             <option>Computing</option>
@@ -174,7 +174,7 @@ function Dashboard() {
             name="program"
             value={selections.program} 
             onChange={handleChange}
-            className="flex-1 min-w-[180px] border cursor-pointer rounded px-3 py-2"
+            className="flex-1 min-w-[180px] border border-teal-500 cursor-pointer rounded px-3 py-2"
           >
             <option value="">Select Program</option>
             <option>Bsc Computer Science</option>
@@ -187,7 +187,7 @@ function Dashboard() {
             name="student"
             value={selections.student} 
             onChange={handleChange}
-            className="flex-1 min-w-[180px] cursor-pointer border rounded px-3 py-2"
+            className="flex-1 min-w-[180px] cursor-pointer border border-teal-500 rounded px-3 py-2"
           >
             <option value="">Select Student</option>
             <option>Kingsley Nasimba</option>
