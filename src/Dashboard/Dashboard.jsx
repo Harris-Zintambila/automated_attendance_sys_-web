@@ -165,6 +165,7 @@ function Dashboard() {
             <option>Computing</option>
             <option>Mathematics and Statistics</option>
             <option>Human Ecology</option>
+            <option>Linguistics</option>
             <option>Humanities</option>
             <option>Politics</option>
           </select>
