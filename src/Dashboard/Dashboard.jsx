@@ -118,7 +118,7 @@ function Dashboard() {
           )}
         </div>
 
-        {/* Dropdowns for selecting course, year, department, program*/}
+        {/* Dropdowns for selecting course, year, department, program and student */}
         <div className="flex flex-wrap gap-4 mb-4">
           <select 
             name="course"
