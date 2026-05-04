@@ -165,6 +165,7 @@ function Dashboard() {
             <option>Computing</option>
             <option>Mathematics and Statistics</option>
             <option>Human Ecology</option>
+            <option>Linguistics</option>
             <option>Humanities</option>
             <option>Politics</option>
           </select>
@@ -200,7 +201,7 @@ function Dashboard() {
         {/* View Analytics Button */}
         <div className="mb-4">
           <Link to={getAnalyticsLink()}>
-            <button className="bg-teal-600 cursor-pointer text-white px-6 py-2 rounded-lg hover:bg-teal-700">
+            <button className="bg-teal-500 cursor-pointer text-white px-6 py-2 rounded-lg hover:bg-teal-700">
               View Analytics
             </button>
           </Link>
