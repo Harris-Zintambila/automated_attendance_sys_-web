@@ -287,6 +287,7 @@ function Profile() {
         }
         .animate-shrink-bar {
           animation: shrink-bar linear forwards;
+          
         }
       `}</style>
     </div>
