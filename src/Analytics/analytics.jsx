@@ -40,7 +40,7 @@ function Analytics() {
     return labels[key] || key;
   };
 
-  // Filter out empty selections
+  // Filter out empty selectio
   const activeSelections = Object.entries(selections).filter(([_, value]) => value);
 
   return (
