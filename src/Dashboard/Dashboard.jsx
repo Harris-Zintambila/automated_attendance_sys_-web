@@ -54,8 +54,53 @@ function Dashboard() {
   };
 
   const requiresCourseAndSession = !!(selections.course && selections.sessionType);
+  const hasAdditionalFilter = !!(
+    selections.year ||
+    selections.department ||
+    selections.program ||
+    selections.student
+  );
+  const dataVisible = requiresCourseAndSession || hasAdditionalFilter;
 
-  const filteredAttendanceData = selections.sessionType === "Lab"
+  const applyAdditionalFilters = (data) => {
+    let result = data;
+
+    if (selections.department) {
+      result = result.map((item) => ({
+        ...item,
+        present: Math.max(0, item.present - 1),
+        absent: item.absent + 1
+      }));
+    }
+
+    if (selections.year) {
+      result = result.map((item) => ({
+        ...item,
+        present: item.present + 1,
+        absent: Math.max(0, item.absent - 1)
+      }));
+    }
+
+    if (selections.program) {
+      result = result.map((item) => ({
+        ...item,
+        present: item.present + 2,
+        absent: Math.max(0, item.absent - 2)
+      }));
+    }
+
+    if (selections.student) {
+      result = result.map((item) => ({
+        ...item,
+        present: item.present + 3,
+        absent: Math.max(0, item.absent - 3)
+      }));
+    }
+
+    return result;
+  };
+
+  const baseAttendanceData = requiresCourseAndSession && selections.sessionType === "Lab"
     ? attendanceData.map((item) => ({
         ...item,
         present: Math.max(0, item.present - 5),
@@ -63,12 +108,16 @@ function Dashboard() {
       }))
     : attendanceData;
 
-  const filteredStudentData = selections.sessionType === "Lab"
-    ? [
-        { name: "Males", value: 49 },
-        { name: "Females", value: 51 }
-      ]
-    : studentData;
+  const filteredAttendanceData = applyAdditionalFilters(baseAttendanceData);
+
+  const filteredStudentData = applyAdditionalFilters(
+    requiresCourseAndSession && selections.sessionType === "Lab"
+      ? [
+          { name: "Males", value: 49 },
+          { name: "Females", value: 51 }
+        ]
+      : studentData
+  );
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -209,7 +258,7 @@ function Dashboard() {
           </Link>
         </div>
 
-        {requiresCourseAndSession && (
+        {dataVisible && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
@@ -224,13 +273,19 @@ function Dashboard() {
               <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
                 {selections.department ? `Department: ${selections.department}` : "Department: Not selected"}
               </div>
+              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+                {selections.program ? `Program: ${selections.program}` : "Program: Not selected"}
+              </div>
+              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+                {selections.student ? `Student: ${selections.student}` : "Student: Not selected"}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white p-4 rounded-xl shadow-sm">
                 <h3 className="font-semibold mb-2">Attendance</h3>
                 <p className="text-xs text-gray-500 mb-4">
-                  Present and absent counts for the selected course and session type.
+                  Present and absent counts based on current filters.
                 </p>
 
                 <BarChart width={500} height={300} data={filteredAttendanceData}>
