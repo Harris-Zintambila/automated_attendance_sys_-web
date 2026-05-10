@@ -209,12 +209,6 @@ function Dashboard() {
           </Link>
         </div>
 
-        {!requiresCourseAndSession && (
-          <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
-            <p className="font-semibold">Select both a course and a session type to display filtered analytics.</p>
-            <p className="mt-1">Session type alone is not enough to show data.</p>
-          </div>
-        )}
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
