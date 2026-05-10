@@ -2,7 +2,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
   PieChart, Pie, Cell
 } from "recharts";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "../components/sidebar";
 
@@ -48,11 +48,6 @@ function Dashboard() {
     });
   };
 
-  const getAnalyticsLink = () => {
-    const params = new URLSearchParams(selections).toString();
-    return `/analytics?${params}`;
-  };
-
   const requiresCourseAndSession = !!(selections.course && selections.sessionType);
   const hasAdditionalFilter = !!(
     selections.year ||
@@ -60,7 +55,20 @@ function Dashboard() {
     selections.program ||
     selections.student
   );
-  const dataVisible = requiresCourseAndSession || hasAdditionalFilter;
+  const dataVisible = requiresCourseAndSession && hasAdditionalFilter;
+
+  const selectedCards = [
+    selections.course && { label: `Course: ${selections.course}` },
+    selections.sessionType && { label: `Session: ${selections.sessionType}` },
+    selections.year && { label: `Year: ${selections.year}` },
+    selections.department && { label: `Department: ${selections.department}` },
+    selections.program && { label: `Program: ${selections.program}` },
+    selections.student && { label: `Student: ${selections.student}` }
+  ].filter(Boolean);
+
+  const cardRows = selectedCards.length <= 4
+    ? [selectedCards]
+    : [selectedCards.slice(0, 3), selectedCards.slice(3)];
 
   const applyAdditionalFilters = (data) => {
     let result = data;
@@ -246,40 +254,23 @@ function Dashboard() {
           </select>
         </div>
 
-        {/* View Analytics Button */}
-        <div className="mb-4">
-          <Link to={getAnalyticsLink()}>
-            <button
-              disabled={!requiresCourseAndSession}
-              className={`px-6 py-2 rounded-lg text-white ${requiresCourseAndSession ? "bg-teal-500 hover:bg-teal-700" : "bg-slate-300 cursor-not-allowed"}`}
-            >
-              View Analytics
-            </button>
-          </Link>
-        </div>
-
-        {dataVisible && (
+        {dataVisible && selectedCards.length > 0 && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-                {selections.course ? `Course: ${selections.course}` : "Course: Not selected"}
+            {cardRows.map((row, rowIndex) => (
+              <div
+                key={rowIndex}
+                className={`grid grid-cols-1 gap-4 mb-4 ${row.length === 2 ? "md:grid-cols-2" : row.length === 3 ? "md:grid-cols-3" : row.length === 4 ? "md:grid-cols-4" : "md:grid-cols-1"}`}
+              >
+                {row.map((card, cardIndex) => (
+                  <div
+                    key={cardIndex}
+                    className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700"
+                  >
+                    {card.label}
+                  </div>
+                ))}
               </div>
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-                {selections.sessionType ? `Session: ${selections.sessionType}` : "Session: Not selected"}
-              </div>
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-                {selections.year ? `Year: ${selections.year}` : "Year: Not selected"}
-              </div>
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-                {selections.department ? `Department: ${selections.department}` : "Department: Not selected"}
-              </div>
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-                {selections.program ? `Program: ${selections.program}` : "Program: Not selected"}
-              </div>
-              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-                {selections.student ? `Student: ${selections.student}` : "Student: Not selected"}
-              </div>
-            </div>
+            ))}
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div className="bg-white p-4 rounded-xl shadow-sm">
