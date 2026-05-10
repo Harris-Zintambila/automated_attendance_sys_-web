@@ -55,7 +55,7 @@ function Dashboard() {
     selections.program ||
     selections.student
   );
-  const dataVisible = requiresCourseAndSession && hasAdditionalFilter;
+  const dataVisible = requiresCourseAndSession || hasAdditionalFilter;
 
   const selectedCards = [
     selections.course && { label: `Course: ${selections.course}` },
