@@ -209,75 +209,71 @@ function Dashboard() {
           </Link>
         </div>
 
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-            {selections.course ? `Course: ${selections.course}` : "Course: Not selected"}
-          </div>
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-            {selections.sessionType ? `Session: ${selections.sessionType}` : "Session: Not selected"}
-          </div>
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-            {selections.year ? `Year: ${selections.year}` : "Year: Not selected"}
-          </div>
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
-            {selections.department ? `Department: ${selections.department}` : "Department: Not selected"}
-          </div>
-        </div>
-
-        {requiresCourseAndSession ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white p-4 rounded-xl shadow-sm">
-              <h3 className="font-semibold mb-2">Attendance</h3>
-              <p className="text-xs text-gray-500 mb-4">
-                Present and absent counts for the selected course and session type.
-              </p>
-
-              <BarChart width={500} height={300} data={filteredAttendanceData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="week" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="present" fill="#0f766e" />
-                <Bar dataKey="absent" fill="#a37931" />
-              </BarChart>
-            </div>
-
-            <div className="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center">
-              <h3 className="font-semibold mb-4">Students</h3>
-
-              <PieChart width={300} height={300}>
-                <Pie
-                  data={filteredStudentData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={100}
-                  dataKey="value"
-                  label
-                >
-                  {filteredStudentData.map((entry, index) => (
-                    <Cell key={index} fill={COLORS[index]} />
-                  ))}
-                </Pie>
-              </PieChart>
-
-              <div className="flex gap-4 mt-4 text-sm">
-                {filteredStudentData.map((entry, index) => (
-                  <span key={index} className="flex items-center gap-1">
-                    <span className={`w-3 h-3 rounded-full ${index === 0 ? "bg-teal-700" : "bg-yellow-500"}`} />
-                    {entry.name}
-                  </span>
-                ))}
+        {requiresCourseAndSession && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+                {selections.course ? `Course: ${selections.course}` : "Course: Not selected"}
+              </div>
+              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+                {selections.sessionType ? `Session: ${selections.sessionType}` : "Session: Not selected"}
+              </div>
+              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+                {selections.year ? `Year: ${selections.year}` : "Year: Not selected"}
+              </div>
+              <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+                {selections.department ? `Department: ${selections.department}` : "Department: Not selected"}
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center text-slate-600">
-            <p className="font-semibold mb-2">Analytics will appear here after selecting a course and session type.</p>
-            <p className="text-sm">Choose both options to enable filtered data.</p>
-          </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white p-4 rounded-xl shadow-sm">
+                <h3 className="font-semibold mb-2">Attendance</h3>
+                <p className="text-xs text-gray-500 mb-4">
+                  Present and absent counts for the selected course and session type.
+                </p>
+
+                <BarChart width={500} height={300} data={filteredAttendanceData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="week" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="present" fill="#0f766e" />
+                  <Bar dataKey="absent" fill="#a37931" />
+                </BarChart>
+              </div>
+
+              <div className="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center">
+                <h3 className="font-semibold mb-4">Students</h3>
+
+                <PieChart width={300} height={300}>
+                  <Pie
+                    data={filteredStudentData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={70}
+                    outerRadius={100}
+                    dataKey="value"
+                    label
+                  >
+                    {filteredStudentData.map((entry, index) => (
+                      <Cell key={index} fill={COLORS[index]} />
+                    ))}
+                  </Pie>
+                </PieChart>
+
+                <div className="flex gap-4 mt-4 text-sm">
+                  {filteredStudentData.map((entry, index) => (
+                    <span key={index} className="flex items-center gap-1">
+                      <span className={`w-3 h-3 rounded-full ${index === 0 ? "bg-teal-700" : "bg-yellow-500"}`} />
+                      {entry.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </main>
     </div>
