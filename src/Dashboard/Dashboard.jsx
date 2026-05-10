@@ -31,6 +31,7 @@ const COLORS = ["#0f766e", "#a37931"];
 function Dashboard() {
   const [selections, setSelections] = useState({
     course: "",
+    sessionType: "",
     year: "",
     department: "",
     program: "",
@@ -51,6 +52,24 @@ function Dashboard() {
     const params = new URLSearchParams(selections).toString();
     return `/analytics?${params}`;
   };
+
+  const requiresCourseAndSession = !!(selections.course && selections.sessionType);
+
+  const filteredAttendanceData = selections.sessionType === "Lab"
+    ? attendanceData.map((item) => ({
+        ...item,
+        present: Math.max(0, item.present - 5),
+        absent: item.absent + 5
+      }))
+    : attendanceData;
+
+  const filteredStudentData = selections.sessionType === "Lab"
+    ? [
+        { name: "Males", value: 49 },
+        { name: "Females", value: 51 }
+      ]
+    : studentData;
+
   return (
     <div className="flex h-screen bg-gray-100">
 
@@ -108,6 +127,17 @@ function Dashboard() {
             <option>COM425</option>
             <option>INF423</option>
             <option>SCE411</option>
+          </select>
+
+          <select
+            name="sessionType"
+            value={selections.sessionType}
+            onChange={handleChange}
+            className="flex-1 min-w-[180px] border border-teal-500 cursor-pointer rounded px-3 py-2"
+          >
+            <option value="">Select Session Type</option>
+            <option value="Class">Class</option>
+            <option value="Lab">Lab</option>
           </select>
 
           <select 
@@ -170,83 +200,91 @@ function Dashboard() {
         {/* View Analytics Button */}
         <div className="mb-4">
           <Link to={getAnalyticsLink()}>
-            <button className="bg-teal-500 cursor-pointer text-white px-6 py-2 rounded-lg hover:bg-teal-700">
+            <button
+              disabled={!requiresCourseAndSession}
+              className={`px-6 py-2 rounded-lg text-white ${requiresCourseAndSession ? "bg-teal-500 hover:bg-teal-700" : "bg-slate-300 cursor-not-allowed"}`}
+            >
               View Analytics
             </button>
           </Link>
         </div>
-        
 
-        {/* Info Cards */}
+        {!requiresCourseAndSession && (
+          <div className="mb-4 rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+            <p className="font-semibold">Select both a course and a session type to display filtered analytics.</p>
+            <p className="mt-1">Session type alone is not enough to show data.</p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          {[
-            "Program: Computer Science",
-            "Department: Computing",
-            "Year: 4",
-            "Program of Study: BSc Computing"
-          ].map((item, i) => (
-            <div
-              key={i}
-              className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700"
-            >
-              {item}
-            </div>
-          ))}
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+            {selections.course ? `Course: ${selections.course}` : "Course: Not selected"}
+          </div>
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+            {selections.sessionType ? `Session: ${selections.sessionType}` : "Session: Not selected"}
+          </div>
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+            {selections.year ? `Year: ${selections.year}` : "Year: Not selected"}
+          </div>
+          <div className="bg-teal-50 border border-teal-200 rounded-lg p-4 text-center text-sm font-medium text-teal-700">
+            {selections.department ? `Department: ${selections.department}` : "Department: Not selected"}
+          </div>
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {requiresCourseAndSession ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              <h3 className="font-semibold mb-2">Attendance</h3>
+              <p className="text-xs text-gray-500 mb-4">
+                Present and absent counts for the selected course and session type.
+              </p>
 
-          {/* Bar Chart */}
-          <div className="bg-white p-4 rounded-xl shadow-sm">
-            <h3 className="font-semibold mb-2">Attendance</h3>
-            <p className="text-xs text-gray-500 mb-4">
-              Present and Absent Students
-            </p>
+              <BarChart width={500} height={300} data={filteredAttendanceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="week" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="present" fill="#0f766e" />
+                <Bar dataKey="absent" fill="#a37931" />
+              </BarChart>
+            </div>
 
-            <BarChart width={500} height={300} data={attendanceData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="present" fill="#0f766e" />
-              <Bar dataKey="absent" fill="#a37931" />
-            </BarChart>
-          </div>
+            <div className="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center">
+              <h3 className="font-semibold mb-4">Students</h3>
 
-          {/* Pie Chart */}
-          <div className="bg-white p-4 rounded-xl shadow-sm flex flex-col items-center">
-            <h3 className="font-semibold mb-4">Students</h3>
+              <PieChart width={300} height={300}>
+                <Pie
+                  data={filteredStudentData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={100}
+                  dataKey="value"
+                  label
+                >
+                  {filteredStudentData.map((entry, index) => (
+                    <Cell key={index} fill={COLORS[index]} />
+                  ))}
+                </Pie>
+              </PieChart>
 
-            <PieChart width={300} height={300}>
-              <Pie
-                data={studentData}
-                cx="50%"
-                cy="50%"
-                innerRadius={70}
-                outerRadius={100}
-                dataKey="value"
-                label
-              >
-                {studentData.map((entry, index) => (
-                  <Cell key={index} fill={COLORS[index]} />
+              <div className="flex gap-4 mt-4 text-sm">
+                {filteredStudentData.map((entry, index) => (
+                  <span key={index} className="flex items-center gap-1">
+                    <span className={`w-3 h-3 rounded-full ${index === 0 ? "bg-teal-700" : "bg-yellow-500"}`} />
+                    {entry.name}
+                  </span>
                 ))}
-              </Pie>
-            </PieChart>
-
-            {/* Legend */}
-            <div className="flex gap-4 mt-4 text-sm">
-              <span className="flex items-center gap-1">
-                <span className="w-3 h-3 bg-teal-700 rounded-full"></span> Males
-              </span>
-              <span className="flex items-center gap-1">
-                <span className="w-3 h-3 bg-yellow-500 rounded-full"></span> Females
-              </span>
+              </div>
             </div>
           </div>
-
-        </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 text-center text-slate-600">
+            <p className="font-semibold mb-2">Analytics will appear here after selecting a course and session type.</p>
+            <p className="text-sm">Choose both options to enable filtered data.</p>
+          </div>
+        )}
       </main>
     </div>
   );
