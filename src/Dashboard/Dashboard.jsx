@@ -195,6 +195,7 @@ function Dashboard() {
             <option value="">Select Session Type</option>
             <option value="Class">Class</option>
             <option value="Lab">Lab</option>
+            <option value="Exam">Exam</option>
           </select>
 
           <select 
