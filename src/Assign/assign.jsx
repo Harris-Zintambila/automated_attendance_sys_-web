@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 function AssignInvigilator() {
   const [formData, setFormData] = useState({
@@ -10,19 +10,83 @@ function AssignInvigilator() {
     invigilator: ""
   });
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const navigate = useNavigate();
   const [assignedInvigilators, setAssignedInvigilators] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const suggestionRef = useRef(null);
+  const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
 
+  // Master list of invigilators — replace/extend with real data or fetch from API
+  const allInvigilators = [
+    "Alice Banda",
+    "Harris Zintambila",
+    "King Nasimba",
+    "Alex Mwale",
+    "Gabriel Moyo",
+    "Francis Gondwe",
+  ];
+
+  // Recently used invigilators (derived from assigned list, most recent first, unique)
+  const recentInvigilators = [
+    ...new Map(
+      [...assignedInvigilators].reverse().map((a) => [a.invigilator, a.invigilator])
+    ).values(),
+  ].slice(0, 5);
+
   const handleFormChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === "invigilator") {
+      const query = value.trim().toLowerCase();
+      if (query === "") {
+        // Show recents when field is empty/focused
+        setSuggestions(recentInvigilators.length > 0 ? recentInvigilators : allInvigilators.slice(0, 5));
+      } else {
+        // Filter by matching letters
+        const matched = allInvigilators.filter((name) =>
+          name.toLowerCase().includes(query)
+        );
+        setSuggestions(matched);
+      }
+      setShowSuggestions(true);
+    }
   };
+
+  const handleInvigilatorFocus = () => {
+    const query = formData.invigilator.trim().toLowerCase();
+    if (query === "") {
+      setSuggestions(recentInvigilators.length > 0 ? recentInvigilators : allInvigilators.slice(0, 5));
+    } else {
+      const matched = allInvigilators.filter((n) => n.toLowerCase().includes(query));
+      setSuggestions(matched);
+    }
+    setShowSuggestions(true);
+  };
+
+  const handleSelectSuggestion = (name) => {
+    setFormData({ ...formData, invigilator: name });
+    setShowSuggestions(false);
+  };
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (suggestionRef.current && !suggestionRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleAssign = () => {
     if (formData.course && formData.date && formData.time && formData.room && formData.invigilator) {
       setAssignedInvigilators([...assignedInvigilators, { ...formData }]);
       setFormData({ course: "", date: "", time: "", room: "", invigilator: "" });
+      setShowSuggestions(false);
     } else {
       alert("Please fill in all fields before assigning.");
     }
@@ -41,7 +105,6 @@ function AssignInvigilator() {
           </div>
           <h2 className="mt-2 text-sm text-gray-600">MAIN NAVIGATION MENU</h2>
         </div>
-
         <nav className="space-y-2">
           <Link to="/dashboard">
             <button className="w-full text-gray-600 py-2 hover:bg-teal-100 rounded-lg">Dashboard</button>
@@ -58,7 +121,6 @@ function AssignInvigilator() {
 
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
-        {/* Header */}
         <div className="bg-teal-500 text-white px-4 py-3 rounded-lg mb-4 flex justify-between items-center relative">
           <span>Assign Invigilator</span>
           <button type="button" onClick={() => setShowProfileMenu(!showProfileMenu)} className="rounded-full p-2 hover:bg-teal-600">
@@ -134,8 +196,63 @@ function AssignInvigilator() {
                     <option>WADONDA</option>
                   </select>
                 </td>
+
+                {/* Invigilator with autocomplete */}
                 <td className="p-2 border border-gray-300">
-                  <input type="text" name="invigilator" value={formData.invigilator} onChange={handleFormChange} className="w-full px-2 py-1 text-sm" placeholder="Name" />
+                  <div className="relative" ref={suggestionRef}>
+                    <input
+                      type="text"
+                      name="invigilator"
+                      value={formData.invigilator}
+                      onChange={handleFormChange}
+                      onFocus={handleInvigilatorFocus}
+                      className="w-full px-2 py-1 text-sm border border-gray-200 rounded"
+                      placeholder="Search name..."
+                      autoComplete="off"
+                    />
+
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute left-0 top-full mt-1 z-50 w-56 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+
+                        {/* Recent label */}
+                        {formData.invigilator.trim() === "" && recentInvigilators.length > 0 && (
+                          <div className="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
+                            Recent
+                          </div>
+                        )}
+
+                        {suggestions.map((name, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onMouseDown={() => handleSelectSuggestion(name)}
+                            className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors flex items-center gap-2"
+                          >
+                            {/* Person icon */}
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 shrink-0">
+                              <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
+                            </svg>
+                            {/* Highlight matching letters */}
+                            {formData.invigilator.trim() === "" ? (
+                              <span>{name}</span>
+                            ) : (
+                              <span dangerouslySetInnerHTML={{
+                                __html: name.replace(
+                                  new RegExp(`(${formData.invigilator.trim()})`, "gi"),
+                                  '<mark class="bg-teal-100 text-teal-800 rounded px-0.5">$1</mark>'
+                                )
+                              }} />
+                            )}
+                          </button>
+                        ))}
+
+                        {/* No match message */}
+                        {suggestions.length === 0 && (
+                          <div className="px-3 py-2 text-sm text-gray-400">No matching invigilators.</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             </tbody>
