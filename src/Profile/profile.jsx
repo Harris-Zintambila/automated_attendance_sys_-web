@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+=======
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import Sidebar from "../components/sidebar";
+>>>>>>> upstream/setup
 
 function Profile() {
   const [users, setUsers] = useState([]);
@@ -99,6 +105,7 @@ function Profile() {
   return (
     <div className="flex h-screen bg-gray-100">
 
+<<<<<<< HEAD
       {/* Sidebar */}
       <aside className="w-64 bg-teal-50 border-r border-teal-200 p-4">
         <div className="flex flex-col items-center mb-6">
@@ -117,6 +124,9 @@ function Profile() {
           <Link to="/profile"><button className="w-full text-white py-2 bg-teal-700 rounded-lg">Profile</button></Link>
         </nav>
       </aside>
+=======
+      <Sidebar />
+>>>>>>> upstream/setup
 
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">

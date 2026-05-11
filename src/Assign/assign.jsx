@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
+=======
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import Sidebar from "../components/sidebar";
+>>>>>>> upstream/setup
 
 function AssignInvigilator() {
   const [formData, setFormData] = useState({
@@ -95,6 +101,7 @@ function AssignInvigilator() {
   return (
     <div className="flex h-screen bg-gray-100">
 
+<<<<<<< HEAD
       {/* Sidebar */}
       <aside className="w-64 bg-teal-50 border-r border-teal-200 p-4">
         <div className="flex flex-col items-center mb-6">
@@ -118,6 +125,9 @@ function AssignInvigilator() {
           </Link>
         </nav>
       </aside>
+=======
+      <Sidebar />
+>>>>>>> upstream/setup
 
       {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
