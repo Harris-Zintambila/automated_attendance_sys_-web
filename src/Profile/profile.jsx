@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 function Profile() {
   const [users, setUsers] = useState([]);
@@ -7,6 +8,7 @@ function Profile() {
   const [editingIndex, setEditingIndex] = useState(null);
   const [toast, setToast] = useState(null);
   const [successToast, setSuccessToast] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const toastTimerRef = useRef(null);
   const successToastTimerRef = useRef(null);
 
@@ -16,7 +18,8 @@ function Profile() {
     name: "",
     email: "",
     department: "",
-    role: ""
+    role: "",
+    password: ""
   });
 
   const handleFormChange = (e) => {
@@ -30,8 +33,8 @@ function Profile() {
   };
 
   const handleAddUser = () => {
-    if (!formData.name || !formData.email || !formData.department || !formData.role) {
-      alert("Please fill in name, email, department, and role.");
+    if (!formData.name || !formData.email || !formData.department || !formData.role || !formData.password) {
+      alert("Please fill in all fields including password.");
       return;
     }
     if (editingIndex !== null) {
@@ -44,12 +47,14 @@ function Profile() {
       setUsers([...users, { ...formData }]);
       triggerSuccessToast(`${formData.name} was added successfully.`);
     }
-    setFormData({ name: "", email: "", department: "", role: "" });
+    setFormData({ name: "", email: "", department: "", role: "", password: "" });
+    setShowPassword(false);
   };
 
   const handleEdit = (index) => {
     setFormData({ ...users[index] });
     setEditingIndex(index);
+    setShowPassword(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -58,7 +63,7 @@ function Profile() {
     setUsers((prev) => prev.filter((_, i) => i !== index));
     if (editingIndex === index) {
       setEditingIndex(null);
-      setFormData({ name: "", email: "", department: "", role: "" });
+      setFormData({ name: "", email: "", department: "", role: "", password: "" });
     }
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     setToast({ deletedUser, deletedIndex: index });
@@ -83,7 +88,8 @@ function Profile() {
 
   const handleCancelEdit = () => {
     setEditingIndex(null);
-    setFormData({ name: "", email: "", department: "", role: "" });
+    setFormData({ name: "", email: "", department: "", role: "", password: "" });
+    setShowPassword(false);
   };
 
   useEffect(() => {
@@ -140,15 +146,36 @@ function Profile() {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input type="text" name="name" value={formData.name} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Enter name" />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                placeholder="Enter name"
+              />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input type="email" name="email" value={formData.email} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Enter email" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleFormChange}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                placeholder="Enter email"
+              />
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
-              <select name="department" value={formData.department} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              <select
+                name="department"
+                value={formData.department}
+                onChange={handleFormChange}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              >
                 <option value="">Select department</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Mathematics">Mathematics</option>
@@ -157,27 +184,66 @@ function Profile() {
                 <option value="Chemistry">Chemistry</option>
               </select>
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-              <select name="role" value={formData.role} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleFormChange}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+              >
                 <option value="">Select role</option>
                 <option value="lecturer">Lecturer</option>
                 <option value="invigilator">Invigilator</option>
               </select>
             </div>
+
+            {/* Password — full width */}
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Default Password
+                <span className="ml-2 text-xs text-gray-400 font-normal">— set a password to share with the user</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleFormChange}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 pr-10 text-sm font-mono"
+                  placeholder="Enter a password for this user"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-400 hover:text-teal-600 transition-colors"
+                >
+                  {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+                </button>
+              </div>
+              <p className="mt-1 text-xs text-gray-400">
+                Share this password with the user. They should change it on first login.
+              </p>
+            </div>
           </div>
+
           <div className="flex justify-end gap-3 mt-6">
             {editingIndex !== null && (
-              <button type="button" onClick={handleCancelEdit} className="px-6 py-2 rounded-full font-semibold shadow-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors">
+              <button
+                type="button"
+                onClick={handleCancelEdit}
+                className="px-6 py-2 rounded-full font-semibold shadow-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition-colors"
+              >
                 Cancel
               </button>
             )}
             <button
               type="button"
               onClick={handleAddUser}
-              disabled={!formData.name || !formData.email || !formData.department || !formData.role}
+              disabled={!formData.name || !formData.email || !formData.department || !formData.role || !formData.password}
               className={`px-6 py-2 cursor-pointer rounded-full font-semibold shadow-md transition-colors ${
-                formData.name && formData.email && formData.department && formData.role
+                formData.name && formData.email && formData.department && formData.role && formData.password
                   ? 'bg-teal-600 hover:bg-teal-700 text-white'
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
               }`}
@@ -197,13 +263,14 @@ function Profile() {
                 <th className="w-1/4 p-3 text-left border border-gray-300 whitespace-nowrap">EMAIL</th>
                 <th className="p-3 text-left border border-gray-300 whitespace-nowrap">DEPARTMENT</th>
                 <th className="p-3 text-left border border-gray-300 whitespace-nowrap">ROLE</th>
+                <th className="p-3 text-left border border-gray-300 whitespace-nowrap">PASSWORD</th>
                 <th className="p-3 text-center border border-gray-300 whitespace-nowrap">ACTIONS</th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center text-gray-400 py-6 text-sm">No profiles added yet.</td>
+                  <td colSpan={6} className="text-center text-gray-400 py-6 text-sm">No profiles added yet.</td>
                 </tr>
               ) : (
                 users.map((user, index) => (
@@ -212,6 +279,9 @@ function Profile() {
                     <td className="w-1/4 p-2 border border-gray-300">{user.email}</td>
                     <td className="p-2 border border-gray-300">{user.department}</td>
                     <td className="p-2 border border-gray-300 capitalize">{user.role}</td>
+                    <td className="p-2 border border-gray-300 font-mono text-xs text-gray-500 tracking-wide">
+                      {"•".repeat(user.password.length)}
+                    </td>
                     <td className="p-2 border border-gray-300">
                       <div className="flex items-center justify-center gap-3">
                         <button type="button" onClick={() => handleEdit(index)} title="Edit" className="text-teal-600 hover:text-teal-800 transition-colors">
@@ -250,7 +320,7 @@ function Profile() {
         </div>
       )}
 
-      {/* Delete Toast (teal to match, with Undo) */}
+      {/* Delete Toast */}
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-teal-700 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-teal-200 shrink-0">
