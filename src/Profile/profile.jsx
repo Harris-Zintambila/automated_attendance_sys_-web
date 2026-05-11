@@ -199,11 +199,10 @@ function Profile() {
               </select>
             </div>
 
-            {/* Password — full width */}
-            <div className="md:col-span-2">
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Default Password
-                <span className="ml-2 text-xs text-gray-400 font-normal">— set a password to share with the user</span>
+                <span className="ml-2 text-xs text-gray-400 font-normal"> share with user</span>
               </label>
               <div className="relative">
                 <input
@@ -222,9 +221,7 @@ function Profile() {
                   {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                 </button>
               </div>
-              <p className="mt-1 text-xs text-gray-400">
-                Share this password with the user. They should change it on first login.
-              </p>
+              <p className="mt-1 text-xs text-gray-400">Share this with the user. They should change it on first login.</p>
             </div>
           </div>
 
@@ -304,7 +301,7 @@ function Profile() {
         </div>
       </main>
 
-      {/* Success Toast (add / edit) */}
+      {/* Success Toast */}
       {successToast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-teal-700 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-teal-200 shrink-0">
