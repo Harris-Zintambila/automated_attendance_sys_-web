@@ -14,7 +14,9 @@ function AssignInvigilator() {
   const [assignedInvigilators, setAssignedInvigilators] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [successToast, setSuccessToast] = useState(null);
   const suggestionRef = useRef(null);
+  const successToastTimerRef = useRef(null);
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
@@ -33,6 +35,12 @@ function AssignInvigilator() {
       [...assignedInvigilators].reverse().map((a) => [a.invigilator, a.invigilator])
     ).values(),
   ].slice(0, 5);
+
+  const triggerSuccessToast = (message) => {
+    if (successToastTimerRef.current) clearTimeout(successToastTimerRef.current);
+    setSuccessToast({ message });
+    successToastTimerRef.current = setTimeout(() => setSuccessToast(null), 4000);
+  };
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -78,11 +86,19 @@ function AssignInvigilator() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    return () => clearTimeout(successToastTimerRef.current);
+  }, []);
+
   const handleAssign = () => {
     if (formData.course && formData.date && formData.time && formData.room && formData.invigilator) {
-      setAssignedInvigilators([...assignedInvigilators, { ...formData, status: "Pending" }]);
+      setAssignedInvigilators([
+        ...assignedInvigilators,
+        { ...formData, status: "Pending" }
+      ]);
       setFormData({ course: "", date: "", time: "", room: "", invigilator: "" });
       setShowSuggestions(false);
+      triggerSuccessToast(`${formData.invigilator} assigned to ${formData.course} successfully.`);
     } else {
       alert("Please fill in all fields before assigning.");
     }
@@ -94,12 +110,14 @@ function AssignInvigilator() {
         i === index ? { ...item, status: "Done" } : item
       )
     );
+    triggerSuccessToast(`${assignedInvigilators[index].course} invigilation marked as done.`);
   };
 
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
 
+      {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
         <div className="bg-teal-500 text-white px-4 py-3 rounded-lg mb-4 flex justify-between items-center relative">
           <span>Assign Invigilator</span>
@@ -258,7 +276,7 @@ function AssignInvigilator() {
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">TIME</th>
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">VENUE</th>
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">INVIGILATOR</th>
-                    <th className="p-3 text-center border border-gray-300 whitespace-nowrap">ATTENDANCE STATUS</th>
+                    <th className="p-3 text-center border border-gray-300 whitespace-nowrap">STATUS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -271,9 +289,9 @@ function AssignInvigilator() {
                       <td className="p-2 border border-gray-300">{item.invigilator}</td>
                       <td className="p-2 border border-gray-300 text-center">
                         {item.status === "Done" ? (
-                          <span className="inline-flex items-center gap-1 bg-teal-100 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
-                              <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 text-teal-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-3.5 h-3.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                             </svg>
                             Done
                           </span>
@@ -281,10 +299,10 @@ function AssignInvigilator() {
                           <button
                             type="button"
                             onClick={() => handleMarkDone(index)}
-                            className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 hover:bg-teal-600 hover:text-white text-xs font-semibold px-3 py-1 rounded-full transition-colors"
+                            className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 hover:bg-amber-200 transition-colors cursor-pointer"
                           >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
-                              <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z" clipRule="evenodd" />
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3.5 h-3.5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                             </svg>
                             Pending
                           </button>
@@ -300,6 +318,43 @@ function AssignInvigilator() {
           </div>
         </div>
       </main>
+
+      {/* Success Toast */}
+      {successToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-teal-700 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-teal-200 shrink-0">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
+          <span className="text-sm">{successToast.message}</span>
+          <button
+            type="button"
+            onClick={() => { clearTimeout(successToastTimerRef.current); setSuccessToast(null); }}
+            className="text-teal-300 hover:text-white transition-colors ml-1"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="absolute bottom-0 left-0 h-1 bg-teal-300 rounded-b-xl animate-shrink-bar" style={{ animationDuration: "4000ms" }} />
+        </div>
+      )}
+
+      <style>{`
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translate(-50%, 16px); }
+          to   { opacity: 1; transform: translate(-50%, 0); }
+        }
+        @keyframes shrink-bar {
+          from { width: 100%; }
+          to   { width: 0%; }
+        }
+        .animate-fade-in-up {
+          animation: fade-in-up 0.3s ease-out forwards;
+        }
+        .animate-shrink-bar {
+          animation: shrink-bar linear forwards;
+        }
+      `}</style>
     </div>
   );
 }
