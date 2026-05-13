@@ -175,7 +175,7 @@ function Profile() {
                 value={formData.department}
                 onChange={handleFormChange}
                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
-              >
+>
                 <option value="">Select department</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Mathematics">Mathematics</option>
@@ -195,7 +195,7 @@ function Profile() {
               >
                 <option value="">Select role</option>
                 <option value="lecturer">Lecturer</option>
-                <option value="invigilator">Invigilator</option>
+                <option value="teaching assistant">Teaching Assistant</option>
               </select>
             </div>
 
