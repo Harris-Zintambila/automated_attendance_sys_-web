@@ -7,6 +7,7 @@ function Profile() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [toast, setToast] = useState(null);
+  // null | { type: "deleted", deletedUser, deletedIndex } | { type: "success", message }
   const toastTimerRef = useRef(null);
 
   const navigate = useNavigate();
@@ -17,6 +18,12 @@ function Profile() {
     department: "",
     role: ""
   });
+
+  const showToast = (toastData, duration = 3000) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast(toastData);
+    toastTimerRef.current = setTimeout(() => setToast(null), duration);
+  };
 
   const handleFormChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,8 +40,10 @@ function Profile() {
       updatedUsers[editingIndex] = { ...formData };
       setUsers(updatedUsers);
       setEditingIndex(null);
+      showToast({ type: "success", message: `${formData.name} was updated successfully.` });
     } else {
       setUsers([...users, { ...formData }]);
+      showToast({ type: "success", message: `${formData.name} was added successfully.` });
     }
 
     setFormData({ name: "", email: "", department: "", role: "" });
@@ -55,17 +64,11 @@ function Profile() {
       setFormData({ name: "", email: "", department: "", role: "" });
     }
 
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-
-    setToast({ deletedUser, deletedIndex: index });
-
-    toastTimerRef.current = setTimeout(() => {
-      setToast(null);
-    }, 5000);
+    showToast({ type: "deleted", deletedUser, deletedIndex: index }, 5000);
   };
 
   const handleUndo = () => {
-    if (!toast) return;
+    if (!toast || toast.type !== "deleted") return;
     clearTimeout(toastTimerRef.current);
 
     setUsers((prev) => {
@@ -131,7 +134,6 @@ function Profile() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <select name="department" value={formData.department} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                {/* disabled and hidden: acts as placeholder only, not a selectable option */}
                 <option value="" disabled hidden>Select department</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Mathematics">Mathematics</option>
@@ -143,7 +145,6 @@ function Profile() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
               <select name="role" value={formData.role} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                {/* disabled and hidden: acts as placeholder only, not a selectable option */}
                 <option value="" disabled hidden>Select role</option>
                 <option value="lecturer">Lecturer</option>
                 <option value="teaching assistant">Teaching Assistant</option>
@@ -221,22 +222,47 @@ function Profile() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-gray-800 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-red-400 shrink-0">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-          </svg>
-          <span className="text-sm">
-            <span className="font-semibold">{toast.deletedUser.name}</span> was deleted.
-          </span>
-          <button type="button" onClick={handleUndo} className="text-teal-300 hover:text-teal-100 text-sm font-bold underline underline-offset-2 transition-colors">
-            Undo
-          </button>
+        <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up ${
+          toast.type === "success" ? "bg-teal-700" : "bg-gray-800"
+        }`}>
+
+          {/* Icon — checkmark for success, trash for deleted */}
+          {toast.type === "success" ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-teal-300 shrink-0">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-red-400 shrink-0">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>
+          )}
+
+          <span className="text-sm">{toast.message ||
+            <><span className="font-semibold">{toast.deletedUser?.name}</span> was deleted.</>
+          }</span>
+
+          {/* Undo button — only for deleted toast */}
+          {toast.type === "deleted" && (
+            <button type="button" onClick={handleUndo} className="text-teal-300 hover:text-teal-100 text-sm font-bold underline underline-offset-2 transition-colors">
+              Undo
+            </button>
+          )}
+
+          {/* Dismiss button */}
           <button type="button" onClick={handleDismissToast} className="text-gray-400 hover:text-white transition-colors ml-1" title="Dismiss">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>
-          <div className="absolute bottom-0 left-0 h-1 bg-teal-400 rounded-b-xl animate-shrink-bar" style={{ animationDuration: "5000ms" }} />
+
+          {/* Progress bar */}
+          <div
+            className="absolute bottom-0 left-0 h-1 rounded-b-xl animate-shrink-bar"
+            style={{
+              animationDuration: toast.type === "success" ? "3000ms" : "5000ms",
+              backgroundColor: toast.type === "success" ? "#5eead4" : "#2dd4bf"
+            }}
+          />
         </div>
       )}
 
