@@ -19,7 +19,6 @@ function AssignInvigilator() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  // Master list of invigilators — replace/extend with real data or fetch from API
   const allInvigilators = [
     "Alice Banda",
     "Harris Zintambila",
@@ -29,7 +28,6 @@ function AssignInvigilator() {
     "Francis Gondwe",
   ];
 
-  // Recently used invigilators (derived from assigned list, most recent first, unique)
   const recentInvigilators = [
     ...new Map(
       [...assignedInvigilators].reverse().map((a) => [a.invigilator, a.invigilator])
@@ -43,10 +41,8 @@ function AssignInvigilator() {
     if (name === "invigilator") {
       const query = value.trim().toLowerCase();
       if (query === "") {
-        // Show recents when field is empty/focused
         setSuggestions(recentInvigilators.length > 0 ? recentInvigilators : allInvigilators.slice(0, 5));
       } else {
-        // Filter by matching letters
         const matched = allInvigilators.filter((name) =>
           name.toLowerCase().includes(query)
         );
@@ -72,7 +68,6 @@ function AssignInvigilator() {
     setShowSuggestions(false);
   };
 
-  // Close suggestions when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (suggestionRef.current && !suggestionRef.current.contains(e.target)) {
@@ -85,7 +80,7 @@ function AssignInvigilator() {
 
   const handleAssign = () => {
     if (formData.course && formData.date && formData.time && formData.room && formData.invigilator) {
-      setAssignedInvigilators([...assignedInvigilators, { ...formData }]);
+      setAssignedInvigilators([...assignedInvigilators, { ...formData, status: "Pending" }]);
       setFormData({ course: "", date: "", time: "", room: "", invigilator: "" });
       setShowSuggestions(false);
     } else {
@@ -93,11 +88,18 @@ function AssignInvigilator() {
     }
   };
 
+  const handleMarkDone = (index) => {
+    setAssignedInvigilators((prev) =>
+      prev.map((item, i) =>
+        i === index ? { ...item, status: "Done" } : item
+      )
+    );
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
 
-      {/* Main Content */}
       <main className="flex-1 p-6 overflow-y-auto">
         <div className="bg-teal-500 text-white px-4 py-3 rounded-lg mb-4 flex justify-between items-center relative">
           <span>Assign Invigilator</span>
@@ -188,17 +190,13 @@ function AssignInvigilator() {
                       placeholder="Search name..."
                       autoComplete="off"
                     />
-
                     {showSuggestions && suggestions.length > 0 && (
                       <div className="absolute left-0 top-full mt-1 z-50 w-56 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-
-                        {/* Recent label */}
                         {formData.invigilator.trim() === "" && recentInvigilators.length > 0 && (
                           <div className="px-3 py-1 text-xs font-semibold text-gray-400 uppercase tracking-wide bg-gray-50 border-b border-gray-100">
                             Recent
                           </div>
                         )}
-
                         {suggestions.map((name, i) => (
                           <button
                             key={i}
@@ -206,11 +204,9 @@ function AssignInvigilator() {
                             onMouseDown={() => handleSelectSuggestion(name)}
                             className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-teal-50 hover:text-teal-700 transition-colors flex items-center gap-2"
                           >
-                            {/* Person icon */}
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-gray-300 shrink-0">
                               <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
                             </svg>
-                            {/* Highlight matching letters */}
                             {formData.invigilator.trim() === "" ? (
                               <span>{name}</span>
                             ) : (
@@ -223,11 +219,6 @@ function AssignInvigilator() {
                             )}
                           </button>
                         ))}
-
-                        {/* No match message */}
-                        {suggestions.length === 0 && (
-                          <div className="px-3 py-2 text-sm text-gray-400">No matching invigilators.</div>
-                        )}
                       </div>
                     )}
                   </div>
@@ -237,7 +228,7 @@ function AssignInvigilator() {
           </table>
 
           <p className="text-gray-600 text-sm mb-2 mt-3">
-            Before confirming ensure that the exam details are correct, the invigilator is available at the selected time, the venue is correct, and no scheduling conflict exists. Submit the form only after verifying all information.{" "}
+            Before confirming ensure that the exam details are correct, the invigilator is available at the selected time, the venue is correct, and no scheduling conflict exists.{" "}
             <span className="text-red-600 font-semibold">Assign the Invigilator only after verifying all information.</span>
           </p>
 
@@ -267,16 +258,38 @@ function AssignInvigilator() {
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">TIME</th>
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">VENUE</th>
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">INVIGILATOR</th>
+                    <th className="p-3 text-center border border-gray-300 whitespace-nowrap">STATUS</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {assignedInvigilators.map((invigilator, index) => (
+                  {assignedInvigilators.map((item, index) => (
                     <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="p-2 border border-gray-300">{invigilator.course}</td>
-                      <td className="p-2 border border-gray-300">{invigilator.date}</td>
-                      <td className="p-2 border border-gray-300">{invigilator.time}</td>
-                      <td className="p-2 border border-gray-300">{invigilator.room}</td>
-                      <td className="p-2 border border-gray-300">{invigilator.invigilator}</td>
+                      <td className="p-2 border border-gray-300">{item.course}</td>
+                      <td className="p-2 border border-gray-300">{item.date}</td>
+                      <td className="p-2 border border-gray-300">{item.time}</td>
+                      <td className="p-2 border border-gray-300">{item.room}</td>
+                      <td className="p-2 border border-gray-300">{item.invigilator}</td>
+                      <td className="p-2 border border-gray-300 text-center">
+                        {item.status === "Done" ? (
+                          <span className="inline-flex items-center gap-1 bg-teal-100 text-teal-700 text-xs font-semibold px-3 py-1 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                              <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
+                            </svg>
+                            Done
+                          </span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleMarkDone(index)}
+                            className="inline-flex items-center gap-1 bg-amber-100 text-amber-700 hover:bg-teal-600 hover:text-white text-xs font-semibold px-3 py-1 rounded-full transition-colors"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                              <path fillRule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25ZM12.75 9a.75.75 0 0 0-1.5 0v2.25H9a.75.75 0 0 0 0 1.5h2.25V15a.75.75 0 0 0 1.5 0v-2.25H15a.75.75 0 0 0 0-1.5h-2.25V9Z" clipRule="evenodd" />
+                            </svg>
+                            Pending
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
