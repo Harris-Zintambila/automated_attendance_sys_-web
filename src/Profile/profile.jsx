@@ -117,7 +117,7 @@ function Profile() {
         {/* Form */}
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
           <h2 className="text-xl font-semibold text-teal-700 mb-4">
-            {editingIndex !== null ? "Edit Profile" : "Add New Profile"}
+            {editingIndex !== null ? "Edit User" : "Add New User"}
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
@@ -167,7 +167,7 @@ function Profile() {
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
               }`}
             >
-              {editingIndex !== null ? "Save Changes" : "Add Profile"}
+              {editingIndex !== null ? "Save Changes" : "Add User"}
             </button>
           </div>
         </div>
