@@ -7,6 +7,7 @@ function Profile() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [toast, setToast] = useState(null);
+  const [emailError, setEmailError] = useState("");
   const toastTimerRef = useRef(null);
 
   const navigate = useNavigate();
@@ -18,6 +19,10 @@ function Profile() {
     role: ""
   });
 
+  // Validates email format: must have characters @ domain . extension
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
   const showToast = (toastData, duration = 3000) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
     setToast(toastData);
@@ -25,12 +30,31 @@ function Profile() {
   };
 
   const handleFormChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    // Clear email error as soon as user starts correcting it
+    if (name === "email") {
+      if (emailError && isValidEmail(value)) setEmailError("");
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (formData.email && !isValidEmail(formData.email)) {
+      setEmailError("Please enter a valid email address (e.g. name@example.com).");
+    } else {
+      setEmailError("");
+    }
   };
 
   const handleAddUser = () => {
     if (!formData.name || !formData.email || !formData.department || !formData.role) {
-      alert("Please fill in name, email, department, and role.");
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      setEmailError("Please enter a valid email address (e.g. name@example.com).");
       return;
     }
 
@@ -46,11 +70,13 @@ function Profile() {
     }
 
     setFormData({ name: "", email: "", department: "", role: "" });
+    setEmailError("");
   };
 
   const handleEdit = (index) => {
     setFormData({ ...users[index] });
     setEditingIndex(index);
+    setEmailError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -61,6 +87,7 @@ function Profile() {
     if (editingIndex === index) {
       setEditingIndex(null);
       setFormData({ name: "", email: "", department: "", role: "" });
+      setEmailError("");
     }
 
     showToast({ type: "deleted", deletedUser, deletedIndex: index }, 5000);
@@ -91,7 +118,16 @@ function Profile() {
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setFormData({ name: "", email: "", department: "", role: "" });
+    setEmailError("");
   };
+
+  // Button is disabled if any field is empty OR email format is invalid
+  const isFormValid =
+    formData.name &&
+    formData.email &&
+    isValidEmail(formData.email) &&
+    formData.department &&
+    formData.role;
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -124,12 +160,42 @@ function Profile() {
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input type="text" name="name" value={formData.name} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Enter name" />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleFormChange}
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                placeholder="Enter name"
+              />
             </div>
+
+            {/* Email field with inline validation */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input type="email" name="email" value={formData.email} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Enter email" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleFormChange}
+                onBlur={handleEmailBlur}
+                className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors ${
+                  emailError
+                    ? "border-red-400 bg-red-50 focus:outline-none focus:ring-1 focus:ring-red-400"
+                    : "border-gray-300"
+                }`}
+                placeholder="Enter email"
+              />
+              {emailError && (
+                <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3 shrink-0">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg>
+                  {emailError}
+                </p>
+              )}
             </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <select name="department" value={formData.department} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
@@ -160,10 +226,10 @@ function Profile() {
             <button
               type="button"
               onClick={handleAddUser}
-              disabled={!formData.name || !formData.email || !formData.department || !formData.role}
-              className={`px-6 py-2 cursor-pointer rounded-full font-semibold shadow-md transition-colors ${
-                formData.name && formData.email && formData.department && formData.role
-                  ? 'bg-teal-600 hover:bg-teal-700 text-white'
+              disabled={!isFormValid}
+              className={`px-6 py-2 rounded-full font-semibold shadow-md transition-colors ${
+                isFormValid
+                  ? 'bg-teal-600 hover:bg-teal-700 text-white cursor-pointer'
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
               }`}
             >
@@ -219,11 +285,9 @@ function Profile() {
         </div>
       </main>
 
-      {/* Toast Notification — unified bg-teal-700 for all types */}
+      {/* Toast Notification */}
       {toast && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-teal-700 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
-
-          {/* Icon — checkmark for success, trash for deleted */}
           {toast.type === "success" ? (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-teal-200 shrink-0">
               <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -234,7 +298,6 @@ function Profile() {
             </svg>
           )}
 
-          {/* Message */}
           <span className="text-sm">
             {toast.type === "success"
               ? toast.message
@@ -242,21 +305,18 @@ function Profile() {
             }
           </span>
 
-          {/* Undo — only for deleted */}
           {toast.type === "deleted" && (
             <button type="button" onClick={handleUndo} className="text-white hover:text-teal-200 text-sm font-bold underline underline-offset-2 transition-colors">
               Undo
             </button>
           )}
 
-          {/* Dismiss */}
           <button type="button" onClick={handleDismissToast} className="text-teal-200 hover:text-white transition-colors ml-1" title="Dismiss">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>
 
-          {/* Progress bar */}
           <div
             className="absolute bottom-0 left-0 h-1 bg-teal-300 rounded-b-xl animate-shrink-bar"
             style={{ animationDuration: toast.type === "deleted" ? "5000ms" : "3000ms" }}
