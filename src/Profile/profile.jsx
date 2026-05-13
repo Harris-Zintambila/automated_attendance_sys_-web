@@ -19,9 +19,16 @@ function Profile() {
     role: ""
   });
 
-  // Validates email format: must have characters @ domain . extension
   const isValidEmail = (email) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  // Check if email already exists, excluding the currently edited user
+  const isDuplicateEmail = (email, excludeIndex = null) =>
+    users.some(
+      (user, i) =>
+        user.email.toLowerCase() === email.trim().toLowerCase() &&
+        i !== excludeIndex
+    );
 
   const showToast = (toastData, duration = 3000) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
@@ -33,15 +40,30 @@ function Profile() {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
 
-    // Clear email error as soon as user starts correcting it
     if (name === "email") {
-      if (emailError && isValidEmail(value)) setEmailError("");
+      if (!value) {
+        setEmailError("");
+        return;
+      }
+      // Clear error live as user types — recheck both format and duplicate
+      if (emailError) {
+        if (!isValidEmail(value)) {
+          setEmailError("Please enter a valid email address (e.g. name@example.com).");
+        } else if (isDuplicateEmail(value, editingIndex)) {
+          setEmailError("This email is already registered.");
+        } else {
+          setEmailError("");
+        }
+      }
     }
   };
 
   const handleEmailBlur = () => {
-    if (formData.email && !isValidEmail(formData.email)) {
+    if (!formData.email) return;
+    if (!isValidEmail(formData.email)) {
       setEmailError("Please enter a valid email address (e.g. name@example.com).");
+    } else if (isDuplicateEmail(formData.email, editingIndex)) {
+      setEmailError("This email is already registered.");
     } else {
       setEmailError("");
     }
@@ -55,6 +77,11 @@ function Profile() {
 
     if (!isValidEmail(formData.email)) {
       setEmailError("Please enter a valid email address (e.g. name@example.com).");
+      return;
+    }
+
+    if (isDuplicateEmail(formData.email, editingIndex)) {
+      setEmailError("This email is already registered.");
       return;
     }
 
@@ -121,11 +148,11 @@ function Profile() {
     setEmailError("");
   };
 
-  // Button is disabled if any field is empty OR email format is invalid
   const isFormValid =
     formData.name &&
     formData.email &&
     isValidEmail(formData.email) &&
+    !isDuplicateEmail(formData.email, editingIndex) &&
     formData.department &&
     formData.role;
 
@@ -170,7 +197,7 @@ function Profile() {
               />
             </div>
 
-            {/* Email field with inline validation */}
+            {/* Email field with format + duplicate validation */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
