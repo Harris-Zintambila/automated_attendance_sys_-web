@@ -182,6 +182,8 @@ function AssignInvigilator() {
                 </td>
                 <td className="p-2 border border-gray-300">
                   <select name="room" value={formData.room} onChange={handleFormChange} className="w-full px-2 py-1 text-sm">
+                    {/*disabled + hidden: placeholder only, not selectable */}
+                    <option value="" disabled hidden>Select Room</option>
                     <option>CK1</option>
                     <option>CK2</option>
                     <option>COMLAB1</option>
