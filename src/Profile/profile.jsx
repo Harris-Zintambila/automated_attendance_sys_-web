@@ -144,7 +144,7 @@ function Profile() {
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
               <select name="role" value={formData.role} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
                 {/* disabled and hidden: acts as placeholder only, not a selectable option */}
-                
+                <option value="" disabled hidden>Select role</option>
                 <option value="lecturer">Lecturer</option>
                 <option value="teaching assistant">Teaching Assistant</option>
               </select>
