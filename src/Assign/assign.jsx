@@ -150,7 +150,8 @@ function AssignInvigilator() {
               <tr className="bg-white">
                 <td className="p-2 border border-gray-300">
                   <select name="course" value={formData.course} onChange={handleFormChange} className="w-full px-2 py-1 text-sm">
-                    <option value="">Select Course</option>
+                    {/*disabled + hidden: placeholder only, not selectable */}
+                    <option value="" disabled hidden>Select Course</option>
                     <option>COM411</option>
                     <option>COM412</option>
                     <option>COM413</option>
@@ -181,7 +182,6 @@ function AssignInvigilator() {
                 </td>
                 <td className="p-2 border border-gray-300">
                   <select name="room" value={formData.room} onChange={handleFormChange} className="w-full px-2 py-1 text-sm">
-                    <option value="">Select Room</option>
                     <option>CK1</option>
                     <option>CK2</option>
                     <option>COMLAB1</option>
@@ -329,7 +329,7 @@ function AssignInvigilator() {
           <button
             type="button"
             onClick={() => { clearTimeout(successToastTimerRef.current); setSuccessToast(null); }}
-            className="text-teal-300 hover:text-white transition-colors ml-1"
+            className="text-teal-200 hover:text-white transition-colors ml-1"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
