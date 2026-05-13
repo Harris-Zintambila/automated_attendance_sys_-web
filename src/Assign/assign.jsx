@@ -258,7 +258,7 @@ function AssignInvigilator() {
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">TIME</th>
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">VENUE</th>
                     <th className="p-3 text-left border border-gray-300 whitespace-nowrap">INVIGILATOR</th>
-                    <th className="p-3 text-center border border-gray-300 whitespace-nowrap">STATUS</th>
+                    <th className="p-3 text-center border border-gray-300 whitespace-nowrap">ATTENDANCE STATUS</th>
                   </tr>
                 </thead>
                 <tbody>
