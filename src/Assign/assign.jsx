@@ -107,7 +107,7 @@ function AssignInvigilator() {
       return;
     }
 
-    // Check 1: same invigilator already assigned at the same date & time (they can't be in two places)
+    // Check 1: invigilator already assigned somewhere at the same date & time
     const invigilatorBusy = assignedInvigilators.find(
       (a) =>
         a.invigilator.toLowerCase() === formData.invigilator.toLowerCase() &&
@@ -121,7 +121,7 @@ function AssignInvigilator() {
       return;
     }
 
-    // Check 2: same invigilator already assigned to the exact same course on the same date & time
+    // Check 2: exact duplicate — same invigilator, same course, same date
     const exactDuplicate = assignedInvigilators.find(
       (a) =>
         a.invigilator.toLowerCase() === formData.invigilator.toLowerCase() &&
@@ -131,21 +131,6 @@ function AssignInvigilator() {
     if (exactDuplicate) {
       triggerErrorToast(
         `${formData.invigilator} is already assigned to ${formData.course} on ${formData.date}.`
-      );
-      return;
-    }
-
-    // Check 3: same venue already booked at the same date & time for a different course
-    const venueTaken = assignedInvigilators.find(
-      (a) =>
-        a.room === formData.room &&
-        a.date === formData.date &&
-        a.time === formData.time &&
-        a.course !== formData.course
-    );
-    if (venueTaken) {
-      triggerErrorToast(
-        `${formData.room} is already booked for ${venueTaken.course} at ${venueTaken.time} on ${venueTaken.date}.`
       );
       return;
     }
