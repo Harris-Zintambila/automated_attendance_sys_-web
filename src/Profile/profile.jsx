@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 
 function Profile() {
   const [users, setUsers] = useState([]);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-  const [toast, setToast] = useState(null); // { deletedUser, deletedIndex, timer }
+  const [toast, setToast] = useState(null);
+  const [emailError, setEmailError] = useState("");
   const toastTimerRef = useRef(null);
 
   const navigate = useNavigate();
@@ -18,13 +19,69 @@ function Profile() {
     role: ""
   });
 
+  const isValidEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+  // Check if email already exists, excluding the currently edited user
+  const isDuplicateEmail = (email, excludeIndex = null) =>
+    users.some(
+      (user, i) =>
+        user.email.toLowerCase() === email.trim().toLowerCase() &&
+        i !== excludeIndex
+    );
+
+  const showToast = (toastData, duration = 3000) => {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast(toastData);
+    toastTimerRef.current = setTimeout(() => setToast(null), duration);
+  };
+
   const handleFormChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+
+    if (name === "email") {
+      if (!value) {
+        setEmailError("");
+        return;
+      }
+      // Clear error live as user types — recheck both format and duplicate
+      if (emailError) {
+        if (!isValidEmail(value)) {
+          setEmailError("Please enter a valid email address (e.g. name@example.com).");
+        } else if (isDuplicateEmail(value, editingIndex)) {
+          setEmailError("This email is already registered.");
+        } else {
+          setEmailError("");
+        }
+      }
+    }
+  };
+
+  const handleEmailBlur = () => {
+    if (!formData.email) return;
+    if (!isValidEmail(formData.email)) {
+      setEmailError("Please enter a valid email address (e.g. name@example.com).");
+    } else if (isDuplicateEmail(formData.email, editingIndex)) {
+      setEmailError("This email is already registered.");
+    } else {
+      setEmailError("");
+    }
   };
 
   const handleAddUser = () => {
     if (!formData.name || !formData.email || !formData.department || !formData.role) {
-      alert("Please fill in name, email, department, and role.");
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    if (!isValidEmail(formData.email)) {
+      setEmailError("Please enter a valid email address (e.g. name@example.com).");
+      return;
+    }
+
+    if (isDuplicateEmail(formData.email, editingIndex)) {
+      setEmailError("This email is already registered.");
       return;
     }
 
@@ -33,46 +90,40 @@ function Profile() {
       updatedUsers[editingIndex] = { ...formData };
       setUsers(updatedUsers);
       setEditingIndex(null);
+      showToast({ type: "success", message: `${formData.name}'s changes were saved successfully.` });
     } else {
       setUsers([...users, { ...formData }]);
+      showToast({ type: "success", message: `${formData.name} was added successfully.` });
     }
 
     setFormData({ name: "", email: "", department: "", role: "" });
+    setEmailError("");
   };
 
   const handleEdit = (index) => {
     setFormData({ ...users[index] });
     setEditingIndex(index);
+    setEmailError("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDelete = (index) => {
     const deletedUser = users[index];
 
-    // Remove user immediately
     setUsers((prev) => prev.filter((_, i) => i !== index));
     if (editingIndex === index) {
       setEditingIndex(null);
       setFormData({ name: "", email: "", department: "", role: "" });
+      setEmailError("");
     }
 
-    // Clear any existing toast timer
-    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-
-    // Show toast
-    setToast({ deletedUser, deletedIndex: index });
-
-    // Auto-dismiss after 5 seconds
-    toastTimerRef.current = setTimeout(() => {
-      setToast(null);
-    }, 5000);
+    showToast({ type: "deleted", deletedUser, deletedIndex: index }, 5000);
   };
 
   const handleUndo = () => {
-    if (!toast) return;
+    if (!toast || toast.type !== "deleted") return;
     clearTimeout(toastTimerRef.current);
 
-    // Re-insert the deleted user at their original position
     setUsers((prev) => {
       const updated = [...prev];
       updated.splice(toast.deletedIndex, 0, toast.deletedUser);
@@ -87,7 +138,6 @@ function Profile() {
     setToast(null);
   };
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => clearTimeout(toastTimerRef.current);
   }, []);
@@ -95,7 +145,16 @@ function Profile() {
   const handleCancelEdit = () => {
     setEditingIndex(null);
     setFormData({ name: "", email: "", department: "", role: "" });
+    setEmailError("");
   };
+
+  const isFormValid =
+    formData.name &&
+    formData.email &&
+    isValidEmail(formData.email) &&
+    !isDuplicateEmail(formData.email, editingIndex) &&
+    formData.department &&
+    formData.role;
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -123,34 +182,56 @@ function Profile() {
         {/* Form */}
         <div className="bg-white rounded-lg shadow-md p-4 md:p-6 mb-6">
           <h2 className="text-xl font-semibold text-teal-700 mb-4">
-            {editingIndex !== null ? "Edit Profile" : "Add New Profile"}
+            {editingIndex !== null ? "Edit User" : "Add New User"}
           </h2>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input type="text" name="name" value={formData.name} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Enter name" />
             </div>
+
+            {/* Email field with format + duplicate validation */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input type="email" name="email" value={formData.email} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm" placeholder="Enter email" />
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleFormChange}
+                onBlur={handleEmailBlur}
+                className={`w-full rounded-lg border px-3 py-2 text-sm transition-colors ${
+                  emailError
+                    ? "border-red-400 bg-red-50 focus:outline-none focus:ring-1 focus:ring-red-400"
+                    : "border-gray-300"
+                }`}
+                placeholder="Enter email"
+              />
+              {emailError && (
+                <p className="mt-1 text-xs text-red-500 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-3 h-3 shrink-0">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                  </svg>
+                  {emailError}
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
               <select name="department" value={formData.department} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                <option value="">Select department</option>
+                <option value="" disabled hidden>Select department</option>
                 <option value="Computer Science">Computer Science</option>
                 <option value="Mathematics">Mathematics</option>
                 <option value="Physics">Physics</option>
                 <option value="Biology">Biology</option>
-                <option value="Chemistry">Chemistry</option>
+              
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
               <select name="role" value={formData.role} onChange={handleFormChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm">
-                <option value="">Select role</option>
+                <option value="" disabled hidden>Select role</option>
                 <option value="lecturer">Lecturer</option>
-                <option value="invigilator">Invigilator</option>
+                <option value="teaching assistant">Teaching Assistant</option>
               </select>
             </div>
           </div>
@@ -164,14 +245,14 @@ function Profile() {
             <button
               type="button"
               onClick={handleAddUser}
-              disabled={!formData.name || !formData.email || !formData.department || !formData.role}
-              className={`px-6 py-2 cursor-pointer rounded-full font-semibold shadow-md transition-colors ${
-                formData.name && formData.email && formData.department && formData.role
-                  ? 'bg-teal-600 hover:bg-teal-700 text-white'
+              disabled={!isFormValid}
+              className={`px-6 py-2 rounded-full font-semibold shadow-md transition-colors ${
+                isFormValid
+                  ? 'bg-teal-600 hover:bg-teal-700 text-white cursor-pointer'
                   : 'bg-gray-300 text-gray-600 cursor-not-allowed'
               }`}
             >
-              {editingIndex !== null ? "Save Changes" : "Add Profile"}
+              {editingIndex !== null ? "Save Changes" : "Add User"}
             </button>
           </div>
         </div>
@@ -225,38 +306,43 @@ function Profile() {
 
       {/* Toast Notification */}
       {toast && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-gray-800 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
-          {/* Trash icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-red-400 shrink-0">
-            <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-          </svg>
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-teal-700 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
+          {toast.type === "success" ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-teal-200 shrink-0">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} className="w-5 h-5 text-teal-200 shrink-0">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+            </svg>
+          )}
+
           <span className="text-sm">
-            <span className="font-semibold">{toast.deletedUser.name}</span> was deleted.
+            {toast.type === "success"
+              ? toast.message
+              : <><span className="font-semibold">{toast.deletedUser?.name}</span> was deleted.</>
+            }
           </span>
-          <button
-            type="button"
-            onClick={handleUndo}
-            className="text-teal-300 hover:text-teal-100 text-sm font-bold underline underline-offset-2 transition-colors"
-          >
-            Undo
-          </button>
-          <button
-            type="button"
-            onClick={handleDismissToast}
-            className="text-gray-400 hover:text-white transition-colors ml-1"
-            title="Dismiss"
-          >
+
+          {toast.type === "deleted" && (
+            <button type="button" onClick={handleUndo} className="text-white hover:text-teal-200 text-sm font-bold underline underline-offset-2 transition-colors">
+              Undo
+            </button>
+          )}
+
+          <button type="button" onClick={handleDismissToast} className="text-teal-200 hover:text-white transition-colors ml-1" title="Dismiss">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>
 
-          {/* Progress bar */}
-          <div className="absolute bottom-0 left-0 h-1 bg-teal-400 rounded-b-xl animate-shrink-bar" style={{ animationDuration: "5000ms" }} />
+          <div
+            className="absolute bottom-0 left-0 h-1 bg-teal-300 rounded-b-xl animate-shrink-bar"
+            style={{ animationDuration: toast.type === "deleted" ? "5000ms" : "3000ms" }}
+          />
         </div>
       )}
 
-      {/* Toast animation styles */}
       <style>{`
         @keyframes fade-in-up {
           from { opacity: 0; transform: translate(-50%, 16px); }
@@ -266,12 +352,8 @@ function Profile() {
           from { width: 100%; }
           to   { width: 0%; }
         }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.3s ease-out forwards;
-        }
-        .animate-shrink-bar {
-          animation: shrink-bar linear forwards;
-        }
+        .animate-fade-in-up { animation: fade-in-up 0.3s ease-out forwards; }
+        .animate-shrink-bar { animation: shrink-bar linear forwards; }
       `}</style>
     </div>
   );
