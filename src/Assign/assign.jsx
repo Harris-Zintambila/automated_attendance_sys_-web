@@ -107,14 +107,13 @@ function AssignInvigilator() {
       return;
     }
 
-    // Check 1: same invigilator already assigned at the same date & time (regardless of course)
+    // Check 1: same invigilator already assigned at the same date & time (they can't be in two places)
     const invigilatorBusy = assignedInvigilators.find(
       (a) =>
         a.invigilator.toLowerCase() === formData.invigilator.toLowerCase() &&
         a.date === formData.date &&
         a.time === formData.time
     );
-
     if (invigilatorBusy) {
       triggerErrorToast(
         `${formData.invigilator} is already assigned to ${invigilatorBusy.course} at ${invigilatorBusy.time} on ${invigilatorBusy.date}.`
@@ -122,29 +121,28 @@ function AssignInvigilator() {
       return;
     }
 
-    // Check 2: same course already assigned at the same date & time (different invigilator)
-    const courseTaken = assignedInvigilators.find(
+    // Check 2: same invigilator already assigned to the exact same course on the same date & time
+    const exactDuplicate = assignedInvigilators.find(
       (a) =>
+        a.invigilator.toLowerCase() === formData.invigilator.toLowerCase() &&
         a.course === formData.course &&
-        a.date === formData.date &&
-        a.time === formData.time
+        a.date === formData.date
     );
-
-    if (courseTaken) {
+    if (exactDuplicate) {
       triggerErrorToast(
-        `${formData.course} already has ${courseTaken.invigilator} assigned at ${courseTaken.time} on ${courseTaken.date}.`
+        `${formData.invigilator} is already assigned to ${formData.course} on ${formData.date}.`
       );
       return;
     }
 
-    // Check 3: same venue already booked at the same date & time
+    // Check 3: same venue already booked at the same date & time for a different course
     const venueTaken = assignedInvigilators.find(
       (a) =>
         a.room === formData.room &&
         a.date === formData.date &&
-        a.time === formData.time
+        a.time === formData.time &&
+        a.course !== formData.course
     );
-
     if (venueTaken) {
       triggerErrorToast(
         `${formData.room} is already booked for ${venueTaken.course} at ${venueTaken.time} on ${venueTaken.date}.`
