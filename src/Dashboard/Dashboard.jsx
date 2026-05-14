@@ -2,9 +2,9 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
   PieChart, Pie, Cell
 } from "recharts";
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "../components/sidebar";
+import AdminMenu from "../components/AdminMenu";
 
 const attendanceData = [
   { week: 1, present: 35, absent: 22 },
@@ -37,9 +37,13 @@ function Dashboard() {
     program: "",
     student: ""
   });
-  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  const navigate = useNavigate();
+  const admin = {
+    name: "Harris Zintambila",
+    email: "harriszintambila9@gmail.com",
+    role: "Administrator"
+  };
+
 
   const handleChange = (e) => {
     setSelections({
@@ -136,31 +140,9 @@ function Dashboard() {
       <main className="flex-1 p-6 overflow-y-auto">
 
         {/* Header */}
-        <div className="bg-teal-500 text-white px-4 py-3 rounded-lg mb-4 flex justify-between items-center relative">
-          <span>Dashboard</span>
-          <button
-            type="button"
-            onClick={() => setShowProfileMenu(!showProfileMenu)}
-            className="rounded-full p-2 hover:bg-teal-600"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="h-6 w-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-            </svg>
-          </button>
-          {showProfileMenu && (
-            <div className="absolute right-4 top-full mt-2 w-20 h-11 rounded-xl bg-teal-100 text-left shadow-lg ring-1 ring-black ring-opacity-5">
-              <button
-                type="button"
-                onClick={() => {
-                  setShowProfileMenu(false);
-                  navigate("/");
-                }}
-                className="w-full px-4 py-3 text-sm text-slate-700 hover:bg-teal-50 transition-colors rounded-lg"
-              >
-                Logout
-              </button>
-            </div>
-          )}
+        <div className="bg-teal-500 text-white px-4 py-3 rounded-lg mb-4 flex justify-between items-center gap-4 relative">
+          <span className="text-lg font-semibold">Dashboard</span>
+          <AdminMenu admin={admin} />
         </div>
 
         {/* Dropdowns for selecting course, year, department, program and student */}
