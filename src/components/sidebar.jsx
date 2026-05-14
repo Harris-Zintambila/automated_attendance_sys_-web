@@ -49,7 +49,7 @@ function Sidebar() {
 
   return (
     <aside
-      className={`relative flex flex-col bg-teal-50 border-r border-teal-200 transition-all duration-300 ease-in-out ${
+      className={`relative flex flex-col bg-teal-50 border-r border-teal-200 p-4 transition-all duration-300 ease-in-out ${
         isOpen ? "w-64" : "w-16"
       }`}
     >
@@ -73,14 +73,14 @@ function Sidebar() {
         </svg>
       </button>
 
-      <div className="flex flex-col items-center mb-6 pt-4 px-2 overflow-hidden">
-        {/* Avatar */}
-        <div className="w-14 h-14 bg-gray-300 rounded-full flex items-center justify-center shrink-0">
+      {/* Header */}
+      <div className="flex flex-col items-center mb-6 overflow-hidden">
+        <div className={`bg-gray-300 rounded-full flex items-center justify-center shrink-0 transition-all duration-300 ${isOpen ? "w-20 h-20" : "w-9 h-9"}`}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
             fill="currentColor"
-            className="h-8 w-8 text-gray-500"
+            className={`transition-all duration-300 ${isOpen ? "h-10 w-10" : "h-5 w-5"}`}
           >
             <path
               fillRule="evenodd"
@@ -90,9 +90,9 @@ function Sidebar() {
           </svg>
         </div>
 
-        {/* Label should fade out when collapsed */}
+        {/* Original: text-sm text-gray-600 */}
         <h2
-          className={`mt-2 text-xs text-gray-500 text-center whitespace-nowrap transition-all duration-200 ${
+          className={`mt-2 text-sm text-gray-600 text-center whitespace-nowrap transition-all duration-200 ${
             isOpen ? "opacity-100 max-h-10" : "opacity-0 max-h-0 overflow-hidden"
           }`}
         >
@@ -100,28 +100,30 @@ function Sidebar() {
         </h2>
       </div>
 
-      {/* Nav Items */}
-      <nav className="flex flex-col gap-1 px-2">
+      {/* Nav Items — original classes preserved exactly */}
+      <nav className="space-y-2">
         {navItems.map((item) => (
           <NavLink
             key={item.path}
             to={item.path}
             title={!isOpen ? item.name : undefined}
             className={({ isActive }) =>
-              `flex items-center gap-3 py-2 px-2 rounded-lg transition-colors duration-150 ${
+              `w-full flex items-center gap-3 text-left py-2 px-3 rounded-lg transition ${
                 isActive ? "bg-teal-700 text-white" : "text-gray-600 hover:bg-teal-100"
               } ${!isOpen ? "justify-center" : ""}`
             }
           >
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center">{item.icon}</span>
+            <span className="flex h-5 w-5 shrink-0 items-start justify-start">{item.icon}</span>
 
+            {/* No text-sm added — inherits default size like the original */}
             <span
-              className={`whitespace-nowrap overflow-hidden transition-all duration-200 text-sm font-medium ${
+              className={`whitespace-nowrap overflow-hidden transition-all duration-200 ${
                 isOpen ? "opacity-100 max-w-xs" : "opacity-0 max-w-0"
               }`}
             >
               {item.name}
             </span>
+
           </NavLink>
         ))}
       </nav>
