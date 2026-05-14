@@ -15,8 +15,10 @@ function AssignInvigilator() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [successToast, setSuccessToast] = useState(null);
+  const [errorToast, setErrorToast] = useState(null);
   const suggestionRef = useRef(null);
   const successToastTimerRef = useRef(null);
+  const errorToastTimerRef = useRef(null);
   const navigate = useNavigate();
 
   const today = new Date().toISOString().split("T")[0];
@@ -42,6 +44,12 @@ function AssignInvigilator() {
     successToastTimerRef.current = setTimeout(() => setSuccessToast(null), 4000);
   };
 
+  const triggerErrorToast = (message) => {
+    if (errorToastTimerRef.current) clearTimeout(errorToastTimerRef.current);
+    setErrorToast({ message });
+    errorToastTimerRef.current = setTimeout(() => setErrorToast(null), 5000);
+  };
+
   const handleFormChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -51,8 +59,8 @@ function AssignInvigilator() {
       if (query === "") {
         setSuggestions(recentInvigilators.length > 0 ? recentInvigilators : allInvigilators.slice(0, 5));
       } else {
-        const matched = allInvigilators.filter((name) =>
-          name.toLowerCase().includes(query)
+        const matched = allInvigilators.filter((n) =>
+          n.toLowerCase().includes(query)
         );
         setSuggestions(matched);
       }
@@ -87,21 +95,71 @@ function AssignInvigilator() {
   }, []);
 
   useEffect(() => {
-    return () => clearTimeout(successToastTimerRef.current);
+    return () => {
+      clearTimeout(successToastTimerRef.current);
+      clearTimeout(errorToastTimerRef.current);
+    };
   }, []);
 
   const handleAssign = () => {
-    if (formData.course && formData.date && formData.time && formData.room && formData.invigilator) {
-      setAssignedInvigilators([
-        ...assignedInvigilators,
-        { ...formData, status: "Pending" }
-      ]);
-      setFormData({ course: "", date: "", time: "", room: "", invigilator: "" });
-      setShowSuggestions(false);
-      triggerSuccessToast(`${formData.invigilator} assigned to ${formData.course} successfully.`);
-    } else {
+    if (!formData.course || !formData.date || !formData.time || !formData.room || !formData.invigilator) {
       alert("Please fill in all fields before assigning.");
+      return;
     }
+
+    // Check 1: same invigilator already assigned at the same date & time (regardless of course)
+    const invigilatorBusy = assignedInvigilators.find(
+      (a) =>
+        a.invigilator.toLowerCase() === formData.invigilator.toLowerCase() &&
+        a.date === formData.date &&
+        a.time === formData.time
+    );
+
+    if (invigilatorBusy) {
+      triggerErrorToast(
+        `${formData.invigilator} is already assigned to ${invigilatorBusy.course} at ${invigilatorBusy.time} on ${invigilatorBusy.date}.`
+      );
+      return;
+    }
+
+    // Check 2: same course already assigned at the same date & time (different invigilator)
+    const courseTaken = assignedInvigilators.find(
+      (a) =>
+        a.course === formData.course &&
+        a.date === formData.date &&
+        a.time === formData.time
+    );
+
+    if (courseTaken) {
+      triggerErrorToast(
+        `${formData.course} already has ${courseTaken.invigilator} assigned at ${courseTaken.time} on ${courseTaken.date}.`
+      );
+      return;
+    }
+
+    // Check 3: same venue already booked at the same date & time
+    const venueTaken = assignedInvigilators.find(
+      (a) =>
+        a.room === formData.room &&
+        a.date === formData.date &&
+        a.time === formData.time
+    );
+
+    if (venueTaken) {
+      triggerErrorToast(
+        `${formData.room} is already booked for ${venueTaken.course} at ${venueTaken.time} on ${venueTaken.date}.`
+      );
+      return;
+    }
+
+    // All checks passed — assign
+    setAssignedInvigilators([
+      ...assignedInvigilators,
+      { ...formData, status: "Pending" }
+    ]);
+    setFormData({ course: "", date: "", time: "", room: "", invigilator: "" });
+    setShowSuggestions(false);
+    triggerSuccessToast(`${formData.invigilator} assigned to ${formData.course} successfully.`);
   };
 
   const handleMarkDone = (index) => {
@@ -150,7 +208,6 @@ function AssignInvigilator() {
               <tr className="bg-white">
                 <td className="p-2 border border-gray-300">
                   <select name="course" value={formData.course} onChange={handleFormChange} className="w-full px-2 py-1 text-sm">
-                    {/*disabled + hidden: placeholder only, not selectable */}
                     <option value="" disabled hidden>Select Course</option>
                     <option>COM411</option>
                     <option>COM412</option>
@@ -182,7 +239,6 @@ function AssignInvigilator() {
                 </td>
                 <td className="p-2 border border-gray-300">
                   <select name="room" value={formData.room} onChange={handleFormChange} className="w-full px-2 py-1 text-sm">
-                    {/*disabled + hidden: placeholder only, not selectable */}
                     <option value="" disabled hidden>Select Room</option>
                     <option>CK1</option>
                     <option>CK2</option>
@@ -328,16 +384,28 @@ function AssignInvigilator() {
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
           <span className="text-sm">{successToast.message}</span>
-          <button
-            type="button"
-            onClick={() => { clearTimeout(successToastTimerRef.current); setSuccessToast(null); }}
-            className="text-teal-200 hover:text-white transition-colors ml-1"
-          >
+          <button type="button" onClick={() => { clearTimeout(successToastTimerRef.current); setSuccessToast(null); }} className="text-teal-200 hover:text-white transition-colors ml-1">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>
           <div className="absolute bottom-0 left-0 h-1 bg-teal-300 rounded-b-xl animate-shrink-bar" style={{ animationDuration: "4000ms" }} />
+        </div>
+      )}
+
+      {/* Error Toast */}
+      {errorToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-red-600 text-white px-5 py-3 rounded-xl shadow-xl animate-fade-in-up">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5 text-red-200 shrink-0">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+          </svg>
+          <span className="text-sm">{errorToast.message}</span>
+          <button type="button" onClick={() => { clearTimeout(errorToastTimerRef.current); setErrorToast(null); }} className="text-red-200 hover:text-white transition-colors ml-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <div className="absolute bottom-0 left-0 h-1 bg-red-400 rounded-b-xl animate-shrink-bar" style={{ animationDuration: "5000ms" }} />
         </div>
       )}
 
